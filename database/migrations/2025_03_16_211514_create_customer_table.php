@@ -12,6 +12,8 @@ return new class extends Migration
             $table->id();
             $table->string('name', 100);
             $table->string('phone', 20);
+            $table->string('cnpj', 20);
+            $table->string('email', 150);
             $table->foreignId('address_id')->constrained('address');
             $table->timestamps();
         });
