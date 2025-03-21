@@ -59,6 +59,12 @@ return new class extends Migration {
                 $table->foreignId('sale_id')->constrained('sales')->onDelete('cascade');
             }
         });
+
+        Schema::table('users', function (Blueprint $table) {
+            if (!Schema::hasColumn('users', 'role_id')) {
+                $table->foreignId('role_id')->constrained('roles')->onDelete('cascade');
+            }
+        });
     }
 
     public function down()
