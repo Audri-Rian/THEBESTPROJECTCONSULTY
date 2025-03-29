@@ -8,9 +8,9 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::create('product_sale', function (Blueprint $table) {
+        Schema::create('products_sales', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_id')->constrained('product');
+            $table->foreignId('product_id')->constrained('products');
             $table->foreignId('sale_id')->constrained('sales');
             $table->integer('quantity');
             $table->decimal('subtotal', 10, 2);
@@ -20,6 +20,6 @@ return new class extends Migration
 
     public function down()
     {
-        Schema::dropIfExists('product_sale');
+        Schema::dropIfExists('products_sales');
     }
 };

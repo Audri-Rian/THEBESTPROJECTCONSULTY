@@ -15,6 +15,7 @@ class Address extends Model
         'street',
         'district',
         'city',
-        'state'
+        'state',
+        'postal_code',
     ];
 }
