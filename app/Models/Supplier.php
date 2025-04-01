@@ -18,4 +18,9 @@ class Supplier extends Model
         'cnpj',
         'email',
     ];
+
+    public function address()
+    {
+        return $this->belongsTo(Address::class, 'address_id');
+    }
 }

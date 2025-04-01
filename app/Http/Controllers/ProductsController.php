@@ -37,7 +37,7 @@ class ProductsController extends Controller
 
         $product->save();
 
-        return redirect()->route('products')->with('success', 'Product created successfully!');
+        return redirect()->route('products.index')->with('success', 'Product created successfully!');
     }
 
     public function getProduct(Product $product)
@@ -56,7 +56,7 @@ class ProductsController extends Controller
 
         $product->update($validatedData);
 
-        return redirect()->route('products')->with('success', 'Product updated successfully!');
+        return redirect()->route('products.index')->with('success', 'Product updated successfully!');
     }
 
 }
