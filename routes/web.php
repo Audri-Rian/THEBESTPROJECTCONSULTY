@@ -31,13 +31,19 @@ Route::middleware(['auth', 'verified', 'role.level:admin'])->group(function () {
 
 Route::get('/LancamentoFinanceiro', [LancamentoFinanceiroController::class, 'index'])->name('LacamentoFinanceiro');
 
-//Enviando nova categoria
+// Rotas para Categorias
 Route::get('/categories', [LancamentoFinanceiroController::class, 'CategoryList'])->name('categories.index');
-Route::post('/categories',[LancamentoFinanceiroController::class, 'store'])->name('categories.store');
-Route::delete('/categories/{id}', [LancamentoFinanceiroController::class, 'destroy'])->name('categories.destroy');
+Route::post('/categories', [LancamentoFinanceiroController::class, 'storeCategory'])->name('categories.store');
+Route::delete('/categories/{id}', [LancamentoFinanceiroController::class, 'destroyCategory'])->name('categories.destroy');
 
-//Enviando Incomes
+// Rotas para Receitas e Despesas
 Route::post('/incomes', [LancamentoFinanceiroController::class, 'storeRevenue'])->name('incomes.store');
+Route::post('/expenses', [LancamentoFinanceiroController::class, 'storeExpense'])->name('expenses.store');
+
+// Rotas para Tipos de Despesa
+Route::get('/expense-types', [LancamentoFinanceiroController::class, 'expenseTypeList'])->name('expense-types.index');
+Route::post('/expense-types', [LancamentoFinanceiroController::class, 'storeExpenseType'])->name('expense-types.store');
+Route::delete('/expense-types/{id}', [LancamentoFinanceiroController::class, 'destroyExpenseType'])->name('expense-types.destroy');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

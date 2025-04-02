@@ -11,11 +11,9 @@ return new class extends Migration {
             $table->id();
             $table->string('name', 100);
             $table->string('description', 255);
-            $table->text('report');
             $table->decimal('amount', 10, 2);
-            //$table->bigInteger('expense_type_id');
-            //$table->bigInteger('category_type_id');
-            //$table->bigInteger('cashbox_id');
+            $table->date('date');
+            $table->string('type', 20); // 'Fixa' ou 'Variável'
             $table->timestamps();
         });
     }

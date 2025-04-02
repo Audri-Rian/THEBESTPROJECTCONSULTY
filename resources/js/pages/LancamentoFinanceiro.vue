@@ -26,6 +26,12 @@ interface Category {
     description: string;
 }
 
+interface ExpenseType {
+    id: number;
+    name: string;
+    description: string;
+}
+
 interface ModalInstance {
     openModal: () => void;
     closeModal: () => void;
@@ -33,7 +39,9 @@ interface ModalInstance {
 
 // Variáveis reativas
 const categories = ref<Category[]>([]);
+const expenseTypes = ref<ExpenseType[]>([]);
 const selectedCategoryId = ref<number | null>(null);
+const selectedExpenseTypeId = ref<number | null>(null);
 
 // Forms
 const revenueForm = useForm({
@@ -50,10 +58,15 @@ const expenseForm = useForm({
     amount: 0,
     date: '',
     categories_id: null as number | null,
-    type: ''
+    expense_types_id: null as number | null
 });
 
 const categoryForm = useForm({
+    name: '',
+    description: ''
+});
+
+const expenseTypeForm = useForm({
     name: '',
     description: ''
 });
@@ -62,6 +75,7 @@ const categoryForm = useForm({
 const revenueModalRef = ref<ModalInstance | null>(null);
 const expenseModalRef = ref<ModalInstance | null>(null);
 const categoryModalRef = ref<ModalInstance | null>(null);
+const expenseTypeModalRef = ref<ModalInstance | null>(null);
 
 // Funções
 const fetchCategories = async () => {
@@ -73,9 +87,23 @@ const fetchCategories = async () => {
     }
 };
 
+const fetchExpenseTypes = async () => {
+    try {
+        const response = await axios.get<ExpenseType[]>(route('expense-types.index'));
+        expenseTypes.value = response.data;
+    } catch (error) {
+        console.error('Erro ao carregar tipos de despesa:', error);
+    }
+};
+
 const toggleCategorySelection = (categoryId: number) => {
     selectedCategoryId.value = selectedCategoryId.value === categoryId ? null : categoryId;
     revenueForm.categories_id = selectedCategoryId.value;
+};
+
+const toggleExpenseTypeSelection = (typeId: number) => {
+    selectedExpenseTypeId.value = selectedExpenseTypeId.value === typeId ? null : typeId;
+    expenseForm.expense_types_id = selectedExpenseTypeId.value;
 };
 
 const submitRevenue = () => {
@@ -95,11 +123,18 @@ const submitRevenue = () => {
 };
 
 const submitExpense = () => {
+    if (!expenseForm.categories_id || !expenseForm.expense_types_id) {
+        alert('Selecione uma categoria e um tipo de despesa');
+        return;
+    }
+
     expenseForm.post(route('expenses.store'), {
         preserveScroll: true,
         onSuccess: () => {
             expenseModalRef.value?.closeModal();
             expenseForm.reset();
+            selectedCategoryId.value = null;
+            selectedExpenseTypeId.value = null;
         },
     });
 };
@@ -110,13 +145,18 @@ const openRevenueModal = async () => {
 };
 
 const openExpenseModal = async () => {
-    await fetchCategories();
+    await Promise.all([fetchCategories(), fetchExpenseTypes()]);
     expenseModalRef.value?.openModal();
 };
 
 const openCategoryModal = async () => {
     await fetchCategories();
     categoryModalRef.value?.openModal();
+};
+
+const openExpenseTypeModal = async () => {
+    await fetchExpenseTypes();
+    expenseTypeModalRef.value?.openModal();
 };
 
 const submitCategory = () => {
@@ -126,6 +166,17 @@ const submitCategory = () => {
             categoryModalRef.value?.closeModal();
             categoryForm.reset();
             fetchCategories();
+        }
+    });
+};
+
+const submitExpenseType = () => {
+    expenseTypeForm.post(route('expense-types.store'), {
+        preserveScroll: true,
+        onSuccess: () => {
+            expenseTypeModalRef.value?.closeModal();
+            expenseTypeForm.reset();
+            fetchExpenseTypes();
         }
     });
 };
@@ -143,8 +194,22 @@ const deleteCategory = async (id: number) => {
     }
 };
 
+const deleteExpenseType = async (id: number) => {
+    if (!confirm('Tem certeza que deseja excluir este tipo de despesa?')) {
+        return;
+    }
+
+    try {
+        await axios.delete(route('expense-types.destroy', id));
+        fetchExpenseTypes();
+    } catch (error) {
+        console.error('Erro ao excluir tipo de despesa:', error);
+    }
+};
+
 onMounted(() => {
     fetchCategories();
+    fetchExpenseTypes();
 });
 </script>
 
@@ -242,6 +307,11 @@ onMounted(() => {
                     <Button @click="openCategoryModal" size="lg"
                         class="w-48 bg-purple-700 text-white rounded-md hover:bg-red-600">
                         Categorias</Button>
+                    <!--Nova Despesa-->
+                    <Button @click="openExpenseTypeModal" size="lg"
+                        class="w-48 bg-blue-700 text-white rounded-md hover:bg-blue-600">
+                        Tipos de Despesa
+                    </Button>
                 </div>
             </div>
         </div>
@@ -295,7 +365,7 @@ onMounted(() => {
                                     <div class="flex items-center">
                                         <span class="font-medium">{{ category.name }}</span>
                                         <span class="ml-2 text-xs text-gray-300 truncate">{{ category.description
-                                            }}</span>
+                                        }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -322,56 +392,124 @@ onMounted(() => {
                 <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Nova Despesa</h3>
             </template>
             <template #body>
-                <div>
-                    <form class="space-y-4">
+                <div class="mb-8 p-6 rounded-lg shadow text-white">
+                    <form @submit.prevent="submitExpense" class="space-y-4">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-300">Nome:</label>
+                            <input type="text" id="name" v-model="expenseForm.name"
+                                class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                placeholder="Nome da despesa" required />
+                        </div>
 
-                        <form @submit.prevent="" class="space-y-4">
-                            <div>
-                                <label for="name" class="block text-sm font-medium text-gray-300">Nome:</label>
-                                <input type="text" id="name" v-model="expenseForm.name"
-                                    class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                    placeholder="Nome da receita" required />
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-300">Descrição:</label>
-                                <input type="text"
-                                    class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                    placeholder="Ex: Aluguel, Cliente X..." />
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-300">Valor:</label>
-                                <input type="number"
-                                    class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-300">Data:</label>
-                                <input type="date"
-                                    class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-300">Categoria:</label>
-                                <select
-                                    class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <div>
+                            <label for="description" class="block text-sm font-medium text-gray-300">Descrição:</label>
+                            <input type="text" id="description" v-model="expenseForm.description"
+                                class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                placeholder="Detalhes da despesa" required />
+                        </div>
 
-                                </select>
-                            </div>
-                            <!--Tipo-->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-300">Origem:</label>
-                                <select name="" id=""
-                                    class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                    <option value="">Fixa</option>
-                                    <option value="">Variavel</option>
-                                </select>
-                            </div>
+                        <div>
+                            <label for="amount" class="block text-sm font-medium text-gray-300">Valor:</label>
+                            <input type="number" id="amount" v-model="expenseForm.amount" step="0.01"
+                                class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                required />
+                        </div>
 
-                            <!-- Botões -->
-                            <div class="flex gap-3 pt-4">
-                                <button type="submit"
-                                    class="px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-600">Salvar</button>
+                        <div>
+                            <label for="date" class="block text-sm font-medium text-gray-300">Data:</label>
+                            <input type="date" id="date" v-model="expenseForm.date"
+                                class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                required />
+                        </div>
+
+                        <!-- Seletor de Categorias -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Categoria:</label>
+                            <div class="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto p-2 bg-gray-700 rounded-md">
+                                <div v-for="category in categories" :key="category.id"
+                                    @click="expenseForm.categories_id = category.id"
+                                    class="p-2 rounded cursor-pointer transition-colors" :class="{
+                                        'bg-indigo-600': expenseForm.categories_id === category.id,
+                                        'bg-gray-600 hover:bg-gray-500': expenseForm.categories_id !== category.id
+                                    }">
+                                    <div class="flex items-center">
+                                        <span class="font-medium">{{ category.name }}</span>
+                                        <span class="ml-2 text-xs text-gray-300 truncate">{{ category.description
+                                            }}</span>
+                                    </div>
+                                </div>
                             </div>
-                        </form>
+                            <p v-if="categories.length === 0" class="text-sm text-gray-400 mt-2">
+                                Nenhuma categoria disponível. Crie uma categoria primeiro.
+                            </p>
+                        </div>
+
+                        <!-- Tipo de Despesa -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300">Tipo:</label>
+                            <select v-model="expenseForm.expense_types_id"
+                                class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                required>
+                                <option value="" disabled>Selecione um tipo</option>
+                                <option v-for="type in expenseTypes" :key="type.id" :value="type.id">
+                                    {{ type.name }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Botões -->
+                        <div class="flex gap-3 pt-4">
+                            <button type="submit" class="px-4 py-2 bg-red-700 text-white rounded-md hover:bg-red-600"
+                                :disabled="expenseForm.processing || !expenseForm.categories_id">
+                                Salvar Despesa
+                            </button>
+                        </div>
                     </form>
+                </div>
+            </template>
+        </Modal>
+
+        <!-- Modal Tipos de Despesa -->
+        <Modal ref="expenseTypeModalRef">
+            <template #title>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Gerenciar Tipos de Despesa</h3>
+            </template>
+            <template #body>
+                <form @submit.prevent="submitExpenseType" class="space-y-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300">Nome:</label>
+                        <input type="text" v-model="expenseTypeForm.name"
+                            class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            placeholder="Nome do tipo" required />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300">Descrição:</label>
+                        <input type="text" v-model="expenseTypeForm.description"
+                            class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            placeholder="Descrição do tipo" required />
+                    </div>
+                    <div class="flex gap-3 pt-4">
+                        <button type="submit" class="px-4 py-2 bg-blue-700 text-white rounded-md hover:bg-blue-600">
+                            Salvar
+                        </button>
+                    </div>
+                </form>
+
+                <div class="mt-6">
+                    <h4 class="text-lg font-medium text-gray-300 mb-3">Tipos Existentes</h4>
+                    <ul class="divide-y divide-gray-600">
+                        <li v-for="type in expenseTypes" :key="type.id"
+                            class="py-3 flex justify-between items-center group">
+                            <div>
+                                <span class="font-medium text-white">{{ type.name }}</span>
+                                <p class="text-sm text-gray-400">{{ type.description }}</p>
+                            </div>
+                            <button @click="deleteExpenseType(type.id)"
+                                class="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-400">
+                                <!-- Ícone de lixeira -->
+                            </button>
+                        </li>
+                    </ul>
                 </div>
             </template>
         </Modal>
