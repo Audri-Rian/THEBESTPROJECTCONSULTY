@@ -20,6 +20,11 @@ const mainNavItems: NavItem[] = [
         icon: Box,
     },
     {
+        title: 'Suppliers',
+        href: '/suppliers',
+        icon: Truck,
+    },
+    {
         title: 'Lancamento Financeiro',
         href: '/LancamentoFinanceiro',
         icon: LayoutGrid,
