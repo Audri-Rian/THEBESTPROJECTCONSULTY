@@ -18,7 +18,14 @@ const mainNavItems: NavItem[] = [
         title: 'Products',
         href: '/products',
         icon: Box,
-    }
+    },
+    {
+        title: 'Lancamento Financeiro',
+        href: '/LancamentoFinanceiro',
+        icon: LayoutGrid,
+    },
+    
+
 ];
 
 const footerNavItems: NavItem[] = [
@@ -42,7 +49,7 @@ const footerNavItems: NavItem[] = [
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
                         <Link :href="route('dashboard')">
-                            <AppLogo />
+                        <AppLogo />
                         </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>

@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\ProductsController;
+use App\Http\Controllers\LancamentoFinanceiroController; // Rota para levi transformar em admin depois
+
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -27,3 +29,21 @@ Route::put('products/{product}', [ProductsController::class, 'update'])
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
+
+
+
+Route::get('/LancamentoFinanceiro', [LancamentoFinanceiroController::class, 'index'])->name('LacamentoFinanceiro');
+
+//Enviando nova categoria
+Route::get('/categories', [LancamentoFinanceiroController::class, 'CategoryList'])->name('categories.index');
+Route::post('/categories',[LancamentoFinanceiroController::class, 'store'])->name('categories.store');
+Route::delete('/categories/{id}', [LancamentoFinanceiroController::class, 'destroy'])->name('categories.destroy');
+
+
+//Enviando Incomes
+Route::post('/incomes', [LancamentoFinanceiroController::class, 'storeRevenue'])->name('incomes.store');
+
+
+require __DIR__ . '/settings.php';
+require __DIR__ . '/auth.php';
+

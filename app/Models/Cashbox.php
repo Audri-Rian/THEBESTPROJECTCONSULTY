@@ -13,7 +13,13 @@ class Cashbox extends Model
 
     protected $fillable = [
         'name',
+        'description',
         'report',
         'amount'
+    ];
+
+    protected $casts = [
+        'amount' => 'decimal:2',
+        'report' => 'array'
     ];
 }
