@@ -102,8 +102,8 @@ defineProps<{
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-            <div class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 dark:border-sidebar-border md:min-h-min">
-                <div class="m-6 space-y-4">
+            <div class="relative min-h-[100vh] p-6 flex-1 rounded-xl border border-sidebar-border/70 dark:border-sidebar-border md:min-h-min">
+                <div class="space-y-4">
                     <div class="flex flex-wrap items-center justify-between gap-4 border-b">
                         <div class="flex-1">
                             <Title title="Products in System" :level="1" />

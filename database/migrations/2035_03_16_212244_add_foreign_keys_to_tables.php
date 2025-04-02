@@ -8,16 +8,16 @@ return new class extends Migration {
     public function up()
     {
         // Adiciona chave estrangeira na tabela 'supplier' (usando nome singular conforme primeira migração)
-        Schema::table('supplier', function (Blueprint $table) {
-            if (!Schema::hasColumn('supplier', 'address_id')) {
+        Schema::table('suppliers', function (Blueprint $table) {
+            if (!Schema::hasColumn('suppliers', 'address_id')) {
                 $table->foreignId('address_id')->constrained('address')->onDelete('cascade');
             }
         });
 
         // Adiciona chave estrangeira na tabela 'product' (usando nome singular conforme primeira migração)
-        Schema::table('product', function (Blueprint $table) {
-            if (!Schema::hasColumn('product', 'supplier_id')) {
-                $table->foreignId('supplier_id')->nullable()->constrained('supplier')->onDelete('cascade');
+        Schema::table('products', function (Blueprint $table) {
+            if (!Schema::hasColumn('products', 'supplier_id')) {
+                $table->foreignId('supplier_id')->nullable()->constrained('suppliers')->onDelete('cascade');
             }
         });
 
@@ -54,18 +54,18 @@ return new class extends Migration {
         });
 
         // Adiciona chave estrangeira na tabela 'product_price' (nome singular conforme primeira migração)
-        Schema::table('product_price', function (Blueprint $table) {
-            if (!Schema::hasColumn('product_price', 'product_id')) {
-                $table->foreignId('product_id')->constrained('product')->onDelete('cascade');
+        Schema::table('products_prices', function (Blueprint $table) {
+            if (!Schema::hasColumn('products_prices', 'product_id')) {
+                $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
             }
         });
 
         // Adiciona chaves estrangeiras na tabela 'product_sale' (nome singular conforme primeira migração)
-        Schema::table('product_sale', function (Blueprint $table) {
-            if (!Schema::hasColumn('product_sale', 'product_id')) {
-                $table->foreignId('product_id')->constrained('product')->onDelete('cascade');
+        Schema::table('products_sales', function (Blueprint $table) {
+            if (!Schema::hasColumn('products_sales', 'product_id')) {
+                $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
             }
-            if (!Schema::hasColumn('product_sale', 'sale_id')) {
+            if (!Schema::hasColumn('products_sales', 'sale_id')) {
                 $table->foreignId('sale_id')->constrained('sales')->onDelete('cascade');
             }
         });
@@ -81,12 +81,12 @@ return new class extends Migration {
     public function down()
     {
         // Remove as chaves estrangeiras e colunas adicionadas
-        Schema::table('supplier', function (Blueprint $table) {
+        Schema::table('suppliers', function (Blueprint $table) {
             $table->dropForeign(['address_id']);
             $table->dropColumn('address_id');
         });
 
-        Schema::table('product', function (Blueprint $table) {
+        Schema::table('products', function (Blueprint $table) {
             $table->dropForeign(['supplier_id']);
             $table->dropColumn('supplier_id');
         });
@@ -112,12 +112,12 @@ return new class extends Migration {
             $table->dropColumn('categories_id');
         });
 
-        Schema::table('product_price', function (Blueprint $table) {
+        Schema::table('products_prices', function (Blueprint $table) {
             $table->dropForeign(['product_id']);
             $table->dropColumn('product_id');
         });
 
-        Schema::table('product_sale', function (Blueprint $table) {
+        Schema::table('products_sales', function (Blueprint $table) {
             $table->dropForeign(['product_id']);
             $table->dropForeign(['sale_id']);
             $table->dropColumn(['product_id', 'sale_id']);
