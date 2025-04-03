@@ -19,6 +19,11 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+/**
+ * todo: Separar todas as interfaces em pastas
+ * ? Instanciar chamadas de funções repetidas a fim de evitar um reprocessamento desnecessarios
+ */
+
 // Interfaces
 interface Category {
     id: number;
@@ -123,8 +128,8 @@ const submitRevenue = () => {
 };
 
 const submitExpense = () => {
-    if (!expenseForm.categories_id || !expenseForm.expense_types_id) {
-        alert('Selecione uma categoria e um tipo de despesa');
+    if (!expenseForm.expense_types_id) {
+        alert('Selecione um tipo de despesa');
         return;
     }
 
@@ -133,8 +138,6 @@ const submitExpense = () => {
         onSuccess: () => {
             expenseModalRef.value?.closeModal();
             expenseForm.reset();
-            selectedCategoryId.value = null;
-            selectedExpenseTypeId.value = null;
         },
     });
 };
@@ -365,7 +368,7 @@ onMounted(() => {
                                     <div class="flex items-center">
                                         <span class="font-medium">{{ category.name }}</span>
                                         <span class="ml-2 text-xs text-gray-300 truncate">{{ category.description
-                                        }}</span>
+                                            }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -435,7 +438,7 @@ onMounted(() => {
                                     <div class="flex items-center">
                                         <span class="font-medium">{{ category.name }}</span>
                                         <span class="ml-2 text-xs text-gray-300 truncate">{{ category.description
-                                            }}</span>
+                                        }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -444,23 +447,26 @@ onMounted(() => {
                             </p>
                         </div>
 
-                        <!-- Tipo de Despesa -->
+                        <!-- Seletor de Tipo de Despesa (agora obrigatório) -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-300">Tipo:</label>
+                            <label class="block text-sm font-medium text-gray-300">Tipo de Despesa:</label>
                             <select v-model="expenseForm.expense_types_id"
-                                class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm
+                                focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                 required>
                                 <option value="" disabled>Selecione um tipo</option>
                                 <option v-for="type in expenseTypes" :key="type.id" :value="type.id">
                                     {{ type.name }}
                                 </option>
                             </select>
+                            <p v-if="expenseTypes.length === 0" class="text-sm text-red-400 mt-2">
+                                Você precisa criar pelo menos um tipo de despesa antes de continuar.
+                            </p>
                         </div>
 
-                        <!-- Botões -->
                         <div class="flex gap-3 pt-4">
                             <button type="submit" class="px-4 py-2 bg-red-700 text-white rounded-md hover:bg-red-600"
-                                :disabled="expenseForm.processing || !expenseForm.categories_id">
+                                :disabled="expenseForm.processing || expenseTypes.length === 0">
                                 Salvar Despesa
                             </button>
                         </div>
@@ -506,7 +512,12 @@ onMounted(() => {
                             </div>
                             <button @click="deleteExpenseType(type.id)"
                                 class="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-400">
-                                <!-- Ícone de lixeira -->
+                                <!-- Ícone de lixeira (igual ao da modal de categorias) -->
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
                             </button>
                         </li>
                     </ul>

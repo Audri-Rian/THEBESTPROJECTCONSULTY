@@ -13,7 +13,6 @@ return new class extends Migration {
             $table->string('description', 255);
             $table->decimal('amount', 10, 2);
             $table->date('date');
-            $table->string('type', 20); // 'Fixa' ou 'Variável'
             $table->timestamps();
         });
     }
