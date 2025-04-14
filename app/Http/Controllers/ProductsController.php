@@ -23,6 +23,7 @@ class ProductsController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:500',
             'price' => 'nullable|numeric|min:0',
+            'price_for_sale' => 'nullable|numeric|min:0',
             'quantity' => 'nullable|integer|min:0',
             'supplier_id' => 'nullable|exists:suppliers,id',
         ]);
@@ -31,6 +32,7 @@ class ProductsController extends Controller
             'name' => $request->name,
             'description' => $request->description,
             'price' => $request->price,
+            'price_for_sale' => $request->price_for_sale,
             'quantity' => $request->quantity,
             'supplier_id' => $request->supplier_id ?? null,
         ]);
@@ -50,6 +52,7 @@ class ProductsController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:500',
             'price' => 'nullable|numeric|min:0',
+            'price_for_sale' => 'nullable|numeric|min:0',
             'quantity' => 'nullable|integer|min:0',
             'supplier_id' => 'nullable|exists:suppliers,id',
         ]);

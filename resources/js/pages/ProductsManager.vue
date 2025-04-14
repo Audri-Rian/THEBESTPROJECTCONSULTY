@@ -14,6 +14,7 @@ const form = useForm({
     name: '',
     description: '',
     price: '',
+    price_for_sale: '',
     quantity: '',
     supplier_id: '',
 });
@@ -23,6 +24,7 @@ const selectedProduct = ref({
     name: '',
     description: '',
     price: '',
+    price_for_sale: '',
     quantity: '',
     supplier_id: '',
 });
@@ -40,6 +42,7 @@ const submitFormUpdate = () => {
     form.name = selectedProduct.value.name;
     form.description = selectedProduct.value.description;
     form.price = selectedProduct.value.price;
+    form.price_for_sale = selectedProduct.value.price_for_sale;
     form.quantity = selectedProduct.value.quantity;
     form.supplier_id = selectedProduct.value.supplier_id;
 
@@ -77,6 +80,7 @@ const openEditProductModal = (product: any) => {
         name: product.name,
         description: product.description || '',
         price: product.price,
+        price_for_sale: product.price_for_sale || '',
         quantity: product.quantity,
         supplier_id: product.supplier?.id || '',
     };
@@ -90,6 +94,7 @@ defineProps<{
         name: string;
         description: string;
         price: number;
+        price_for_sale: number;
         quantity: number;
         supplier: { name: string };
     }>;
@@ -115,13 +120,14 @@ defineProps<{
                     </div>
 
                     <Table
-                        :headers="['ID', 'Name', 'Description', 'Price', 'Quantity', 'Supplier', 'Action']"
+                        :headers="['ID', 'Name', 'Description', 'Price', 'PriceForSale', 'Quantity', 'Supplier', 'Action']"
                         :data="
                             products.map((product) => ({
                                 ID: product.id,
                                 Name: product.name,
                                 Description: product.description ? product.description : 'N/A',
                                 Price: product.price ? `R$ ${product.price}` : 'N/A',
+                                PriceForSale: product.price_for_sale ? `R$ ${product.price_for_sale}` : 'N/A',
                                 Quantity: product.quantity ? product.quantity : 'N/A',
                                 Supplier: product.supplier ? product.supplier.name : 'N/A',
                                 product: product,
@@ -161,6 +167,10 @@ defineProps<{
                         <div>
                             <Label for="price">Price</Label>
                             <Input id="price" v-model="form.price" type="number" autofocus :tabindex="1" placeholder="R$ 15" />
+                        </div>
+                        <div>
+                            <Label for="price_for_sale">Price For Sale</Label>
+                            <Input id="price_for_sale" v-model="form.price_for_sale" type="number" autofocus :tabindex="1" placeholder="R$ 20" />
                         </div>
                         <div>
                             <Label for="quantity">Quantity in Stock</Label>
@@ -205,6 +215,10 @@ defineProps<{
                     <div>
                         <Label for="edit-price">Price</Label>
                         <Input v-model="selectedProduct.price" id="edit-price" type="number" />
+                    </div>
+                    <div>
+                        <Label for="edit-price_for_sale">Price For Sale</Label>
+                        <Input v-model="selectedProduct.price_for_sale" id="edit-price_for_sale" type="number" />
                     </div>
                     <div>
                         <Label for="edit-quantity">Quantity in Stock</Label>

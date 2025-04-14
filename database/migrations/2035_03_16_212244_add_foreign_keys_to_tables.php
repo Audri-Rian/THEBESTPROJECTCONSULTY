@@ -53,13 +53,6 @@ return new class extends Migration {
             }
         });
 
-        // Adiciona chave estrangeira na tabela 'product_price' (nome singular conforme primeira migração)
-        Schema::table('products_prices', function (Blueprint $table) {
-            if (!Schema::hasColumn('products_prices', 'product_id')) {
-                $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
-            }
-        });
-
         // Adiciona chaves estrangeiras na tabela 'product_sale' (nome singular conforme primeira migração)
         Schema::table('products_sales', function (Blueprint $table) {
             if (!Schema::hasColumn('products_sales', 'product_id')) {
@@ -110,11 +103,6 @@ return new class extends Migration {
         Schema::table('incomes', function (Blueprint $table) {
             $table->dropForeign(['categories_id']);
             $table->dropColumn('categories_id');
-        });
-
-        Schema::table('products_prices', function (Blueprint $table) {
-            $table->dropForeign(['product_id']);
-            $table->dropColumn('product_id');
         });
 
         Schema::table('products_sales', function (Blueprint $table) {
