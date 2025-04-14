@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\LancamentoFinanceiroController;
+use App\Http\Controllers\SaleController;
 
 
 Route::get('/', function () {
@@ -44,6 +45,12 @@ Route::post('/expenses', [LancamentoFinanceiroController::class, 'storeExpense']
 Route::get('/expense-types', [LancamentoFinanceiroController::class, 'expenseTypeList'])->name('expense-types.index');
 Route::post('/expense-types', [LancamentoFinanceiroController::class, 'storeExpenseType'])->name('expense-types.store');
 Route::delete('/expense-types/{id}', [LancamentoFinanceiroController::class, 'destroyExpenseType'])->name('expense-types.destroy');
+
+Route::middleware(['auth', 'verified', 'role.level:employee'])->group(function () {
+    Route::get('/sales', [SaleController::class, 'index'])->name('sales.index');
+    Route::post('/sales', [SaleController::class, 'store'])->name('sales.store');
+});
+
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
