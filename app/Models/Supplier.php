@@ -23,4 +23,9 @@ class Supplier extends Model
     {
         return $this->belongsTo(Address::class, 'address_id');
     }
+
+    public function orders()
+    {
+        return $this->hasMany(SupplierOrder::class, 'supplier_id');
+    }
 }
