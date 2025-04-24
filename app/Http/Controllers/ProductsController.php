@@ -62,4 +62,17 @@ class ProductsController extends Controller
         return redirect()->route('products.index')->with('success', 'Product updated successfully!');
     }
 
+    public function search(Request $request){
+        $search = $request->input('search');
+
+        $products = Product::with('supplier')
+        ->when($search, function($query, $search){
+            $query->where('name', 'like', '%' . $search . '%');
+        })->get();
+
+        $suppliers = Supplier::all();
+
+        return Inertia::render('ProductsManager', compact('products', 'suppliers'));
+    }
+
 }

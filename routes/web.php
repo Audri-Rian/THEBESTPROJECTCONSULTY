@@ -18,6 +18,7 @@ Route::get('dashboard', function () {
 
 
 Route::middleware(['auth', 'verified', 'role.level:employee'])->group(function () {
+    Route::get('products/search', [ProductsController::class, 'search'])->name('products.search');
     Route::get('products', [ProductsController::class, 'index'])->name('products.index');
     Route::post('products/store', [ProductsController::class, 'store'])->name('products.store');
     Route::get('products/{product}', [ProductsController::class, 'getProduct'])->name('products.get');

@@ -7,8 +7,8 @@ import Table from '@/components/ui/table/Table.vue';
 import Title from '@/components/ui/title/Title.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Head, useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { Head, router, useForm } from '@inertiajs/vue3';
+import { reactive, ref } from 'vue';
 
 const form = useForm({
     name: '',
@@ -52,7 +52,6 @@ const submitFormUpdate = () => {
         },
     });
 };
-
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -100,6 +99,13 @@ defineProps<{
     }>;
     suppliers?: Array<{ id: number; name: string }>;
 }>();
+
+const filter = reactive({
+    search: '',
+});
+const submitSearch = () => {
+    router.get(route('products.search'), { search: filter.search }, { preserveState: true });
+};
 </script>
 
 <template>
@@ -107,7 +113,7 @@ defineProps<{
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-            <div class="relative min-h-[100vh] p-6 flex-1 rounded-xl border border-sidebar-border/70 dark:border-sidebar-border md:min-h-min">
+            <div class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 p-6 dark:border-sidebar-border md:min-h-min">
                 <div class="space-y-4">
                     <div class="flex flex-wrap items-center justify-between gap-4 border-b">
                         <div class="flex-1">
@@ -118,6 +124,21 @@ defineProps<{
                             <Button :icon="'Pin'" :variant="'default'" @click="openAddProductModal">Add Product</Button>
                         </div>
                     </div>
+
+                    <form @submit.prevent="submitSearch">
+                        <input
+                            v-model="filter.search"
+                            type="text"
+                            placeholder="Pesquise um produto"
+                            class="text- w-full rounded-md border border-gray-300 p-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400 md:w-1/3"
+                        />
+                        <button
+                            type="submit"
+                            class="text-blue rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium shadow transition-colors hover:bg-blue-700"
+                        >
+                            Buscar
+                        </button>
+                    </form>
 
                     <Table
                         :headers="['ID', 'Name', 'Description', 'Price', 'PriceForSale', 'Quantity', 'Supplier', 'Action']"
@@ -226,7 +247,11 @@ defineProps<{
                     </div>
                     <div>
                         <Label for="edit-supplier">Supplier</Label>
-                        <select v-model="selectedProduct.supplier_id" id="edit-supplier" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background">
+                        <select
+                            v-model="selectedProduct.supplier_id"
+                            id="edit-supplier"
+                            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background"
+                        >
                             <option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">
                                 {{ supplier.name }}
                             </option>
