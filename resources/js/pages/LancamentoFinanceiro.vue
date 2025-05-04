@@ -20,8 +20,19 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 /**
- * todo: Separar todas as interfaces em pastas
+ * todo: Para manter uma boa pratica, separar as interfaces no js/types.
+ * todo: Ela mantem uma tipagem forte, a fim de garantir que os dados recebidos/salvos tenham a estrutura correta, ela tambem previne erros ao tentar acessar dados que não existem
+ * 
+ * ? Vue 3: Variaveis Reativas. usamos ref e reactive para criar varias que, quando alteradas, atualizam automaticamente a interface do usuario
+ * ? Porque usar? quando o vlaor muda, o Vue atualiza o DOM automaticamente, uso em templates facilita a vinculação de dados como(V-MODEL, {{variavel}} )
+ * ? const categories = ref<Category[]>([]); // Armazena um array vazio e são preenchidos por via chamada de API
  * ? Instanciar chamadas de funções repetidas a fim de evitar um reprocessamento desnecessarios
+ * 
+ * * useForm é um helper do interia que facilita o gerenciamento de formularios, submissão de dados, tratamento de erros, reset de campos
+ * * o useForm do vue ja vem com os metodos como reset, post e erros, tem uma propriedade chamda PROCESSING que indica se o formulario está sendo enviado
+ * * é chamado no template com   v-model="revenueForm.name" 
+ * 
+ * ! Usamos o axios para buscar dados da API laravel, que permite adicionar logica global e util se o usuario sair da pagina antes da resposta
  */
 
 // Interfaces
@@ -42,13 +53,14 @@ interface ModalInstance {
     closeModal: () => void;
 }
 
-// Variáveis reativas
-const categories = ref<Category[]>([]);
-const expenseTypes = ref<ExpenseType[]>([]);
-const selectedCategoryId = ref<number | null>(null);
-const selectedExpenseTypeId = ref<number | null>(null);
+// -> onMounted
+onMounted(() => {
+    fetchCategories();
+    fetchExpenseTypes();
+});
 
-// Forms
+// -> Código de Lançamento Financeiro
+// Forms  
 const revenueForm = useForm({
     name: '',
     description: '',
@@ -56,61 +68,9 @@ const revenueForm = useForm({
     date: '',
     categories_id: null as number | null
 });
-
-const expenseForm = useForm({
-    name: '',
-    description: '',
-    amount: 0,
-    date: '',
-    categories_id: null as number | null,
-    expense_types_id: null as number | null
-});
-
-const categoryForm = useForm({
-    name: '',
-    description: ''
-});
-
-const expenseTypeForm = useForm({
-    name: '',
-    description: ''
-});
-
-// Refs para as modais
+// Variaveis Reativas
 const revenueModalRef = ref<ModalInstance | null>(null);
-const expenseModalRef = ref<ModalInstance | null>(null);
-const categoryModalRef = ref<ModalInstance | null>(null);
-const expenseTypeModalRef = ref<ModalInstance | null>(null);
-
-// Funções
-const fetchCategories = async () => {
-    try {
-        const response = await axios.get<Category[]>(route('categories.index'));
-        categories.value = response.data;
-    } catch (error) {
-        console.error('Erro ao carregar categorias:', error);
-    }
-};
-
-const fetchExpenseTypes = async () => {
-    try {
-        const response = await axios.get<ExpenseType[]>(route('expense-types.index'));
-        expenseTypes.value = response.data;
-    } catch (error) {
-        console.error('Erro ao carregar tipos de despesa:', error);
-    }
-};
-
-const toggleCategorySelection = (categoryId: number) => {
-    selectedCategoryId.value = selectedCategoryId.value === categoryId ? null : categoryId;
-    revenueForm.categories_id = selectedCategoryId.value;
-};
-
-const toggleExpenseTypeSelection = (typeId: number) => {
-    selectedExpenseTypeId.value = selectedExpenseTypeId.value === typeId ? null : typeId;
-    expenseForm.expense_types_id = selectedExpenseTypeId.value;
-};
-
+// Funções de Funcionalidade
 const submitRevenue = () => {
     if (!selectedCategoryId.value) {
         alert('Selecione uma categoria');
@@ -126,7 +86,34 @@ const submitRevenue = () => {
         },
     });
 };
+const openRevenueModal = async () => {
+    await fetchCategories();
+    revenueModalRef.value?.openModal();
+};
 
+// Modal
+const openExpenseModal = async () => {
+    await Promise.all([fetchCategories(), fetchExpenseTypes()]);
+    expenseModalRef.value?.openModal();
+};
+
+// -> Código de Despesas
+// Variavel Reativa
+const expenseModalRef = ref<ModalInstance | null>(null);
+// Refs para as modais
+const categoryModalRef = ref<ModalInstance | null>(null);
+
+// Form
+const expenseForm = useForm({
+    name: '',
+    description: '',
+    amount: 0,
+    date: '',
+    categories_id: null as number | null,
+    expense_types_id: null as number | null
+});
+
+//Funções
 const submitExpense = () => {
     if (!expenseForm.expense_types_id) {
         alert('Selecione um tipo de despesa');
@@ -142,26 +129,37 @@ const submitExpense = () => {
     });
 };
 
-const openRevenueModal = async () => {
-    await fetchCategories();
-    revenueModalRef.value?.openModal();
+// -> Código de Categorias 
+// Variavel Reativa 
+const categories = ref<Category[]>([]);
+
+// Variavel ao qual eu não sei a funcionalidade
+const selectedCategoryId = ref<number | null>(null);
+const toggleCategorySelection = (categoryId: number) => {
+    selectedCategoryId.value = selectedCategoryId.value === categoryId ? null : categoryId;
+    revenueForm.categories_id = selectedCategoryId.value;
 };
 
-const openExpenseModal = async () => {
-    await Promise.all([fetchCategories(), fetchExpenseTypes()]);
-    expenseModalRef.value?.openModal();
-};
-
+// Modal
 const openCategoryModal = async () => {
     await fetchCategories();
     categoryModalRef.value?.openModal();
 };
 
-const openExpenseTypeModal = async () => {
-    await fetchExpenseTypes();
-    expenseTypeModalRef.value?.openModal();
+// Forms
+const categoryForm = useForm({
+    name: '',
+    description: ''
+});
+// Funções
+const fetchCategories = async () => {
+    try {
+        const response = await axios.get<Category[]>(route('categories.index'));
+        categories.value = response.data;
+    } catch (error) {
+        console.error('Erro ao carregar categorias:', error);
+    }
 };
-
 const submitCategory = () => {
     categoryForm.post(route('categories.store'), {
         preserveScroll: true,
@@ -169,17 +167,6 @@ const submitCategory = () => {
             categoryModalRef.value?.closeModal();
             categoryForm.reset();
             fetchCategories();
-        }
-    });
-};
-
-const submitExpenseType = () => {
-    expenseTypeForm.post(route('expense-types.store'), {
-        preserveScroll: true,
-        onSuccess: () => {
-            expenseTypeModalRef.value?.closeModal();
-            expenseTypeForm.reset();
-            fetchExpenseTypes();
         }
     });
 };
@@ -197,6 +184,46 @@ const deleteCategory = async (id: number) => {
     }
 };
 
+// -> Código de Tipos de Despesas
+// Variavel Reativa
+const expenseTypes = ref<ExpenseType[]>([]);
+const selectedExpenseTypeId = ref<number | null>(null);
+
+// Formularios
+const expenseTypeForm = useForm({
+    name: '',
+    description: ''
+});
+// Váriavel Reativa de Modal
+const expenseTypeModalRef = ref<ModalInstance | null>(null);
+
+// Modal
+const openExpenseTypeModal = async () => {
+    await fetchExpenseTypes();
+    expenseTypeModalRef.value?.openModal();
+};
+
+// Funções
+const fetchExpenseTypes = async () => {
+    try {
+        const response = await axios.get<ExpenseType[]>(route('expense-types.index'));
+        expenseTypes.value = response.data;
+    } catch (error) {
+        console.error('Erro ao carregar tipos de despesa:', error);
+    }
+};
+
+const submitExpenseType = () => {
+    expenseTypeForm.post(route('expense-types.store'), {
+        preserveScroll: true,
+        onSuccess: () => {
+            expenseTypeModalRef.value?.closeModal();
+            expenseTypeForm.reset();
+            fetchExpenseTypes();
+        }
+    });
+};
+
 const deleteExpenseType = async (id: number) => {
     if (!confirm('Tem certeza que deseja excluir este tipo de despesa?')) {
         return;
@@ -210,10 +237,6 @@ const deleteExpenseType = async (id: number) => {
     }
 };
 
-onMounted(() => {
-    fetchCategories();
-    fetchExpenseTypes();
-});
 </script>
 
 <template>
@@ -228,7 +251,8 @@ onMounted(() => {
                 <div class="mb-8 shadow text-white">
 
                     <h2 class="text-xl font-semibold mb-1">Lançamentos Recentes</h2>
-                    <p class="text-sm text-gray-300 mb-3">Você pode adicionar novas financias e categorias!</p>
+                    <p class="text-sm text-gray-300 mb-3">Essa página funciona, mas vou fazer uma refatoração de código
+                        completo nela.</p>
                     <table class="min-w-full divide-y text-sm border">
                         <thead class="bg-[#1c1c1c]">
                             <tr>
@@ -450,10 +474,8 @@ onMounted(() => {
                         <!-- Seletor de Tipo de Despesa (agora obrigatório) -->
                         <div>
                             <label class="block text-sm font-medium text-gray-300">Tipo de Despesa:</label>
-                            <select v-model="expenseForm.expense_types_id"
-                                class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm
-                                focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                required>
+                            <select v-model="expenseForm.expense_types_id" class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm
+                                focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
                                 <option value="" disabled>Selecione um tipo</option>
                                 <option v-for="type in expenseTypes" :key="type.id" :value="type.id">
                                     {{ type.name }}

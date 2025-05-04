@@ -1,0 +1,65 @@
+- Esse arquivo é apenas destinado para fazer anotações sobre os meus códigos - Audri Rian
+
+Primeiro antes de tudo, eu vou explicar para mim mesmo ou para você leitor oque caralhos foi feito por mim nesse projeto.     /
+Ao notar que a estrutura estava uma bagunça(Grande parte feita por mim) decidir reestruturar o projeto separando devidamentes /
+cada codigo para sua responsalidades.                                                                                         /
+                                                                                                                              /
+Quando você decidiu isso Audrizinho?                                                                                          /
+Simplismente meu código estava uma puta bagunça e tudo no mesmo controller e Vue.js desrespeitando a boa pratica de programa- /
+ção de separar por responsabilidades cada codigo.                                                                             /
+                                                                                                                              /
+A coisa mais feia ao qual eu fiz foi o meu LancamentoFinanceiroController, que para começo de conversa essa merda não deveria /
+estar em português, e o problema ao qual eu identifiquei que o meu controller fazia de tudo em um unico controller. Eu tinha  /
+simplismente 4 estruturas de codigo CRUD em um unico controller(Novo Lançamento, Nova Despesa, Categorias e Tipos de Depesas),/
+além disso, tudo no mesmo controller eu fazia tudo misturado em um unico controller, requisição, atribuição de dados, envios  /
+de dados,validações,acesso ao banco, respostas HTTP, tudo em um unico controller, violando os principios de SOLID, DRY        /
+e segurança.                                                                                                                  /
+                                                                                                                              /
+Ai oque você fez Audri? Primeiramente, análisei o meu código por completo entendendo a estrutura dele e o seu fluxo de funcio-/
+namento, ao qual consistia em que:                                                                                            /
+
+    * O componente Vue(LancamentoFinanceiro.vue) gerencia lançamentos financeiros com 4 modais principais:
+        -Nova Receita
+        -Nova Despesa
+        -Gerenciamento de Categorias
+        -Gerenciamento de Tipos de Despesa
+
+    * O Fluxo de dados FrontEnd consistia em:
+        graph TD
+        A[Componente Mounted] --> B[fetchCategories]
+        A --> C[fetchExpenseTypes]
+        B --> D[Preenche categories.value]
+        C --> E[Preenche expenseTypes.value]
+        D --> F[Renderiza seletores nas modais]
+        E --> F
+        
+    * As Relações entre Componentes e Modais:
+        AppLayout -> (Contém) -> LancamentoFinanceiro -> (Usa) -> 4 Modais -> (Manipula) -> Formulários -> (Usam) -> UseForm
+
+    * Fluxo de Submissão 
+        Usuário -> Preenche formulário na Modal -> Que segue o submitRevenue do Component-> Aonde manda um metodo post 
+        para o laravel -> o Laravel chama a função no Controller -> Que manda os dados para a model ->
+        e da um insert no banco de dados.
+
+    * Relação Frontend-Backend
+        graph LR
+        VueComponent -->|Axios GET| Controller[Laravel Controller]
+        VueComponent -->|Inertia POST| Controller
+        Controller -->|Eloquent| Database[(MySQL)]
+        Database -->|Results| Controller
+        Controller -->|JSON| VueComponent
+
+        BD sempre retornando um Json ao front
+
+Audri Resolução do problema de Amanhã (Sexta Feira 25/04/2025), primeiramente você vai entender que foi completamente destrinchado 
+o codigo o LancamentoFinanceiro.vue, para manter pelo menos o codigo funcional você vai manter o LancamentoFinanceiro.vue e o LancamentoFinanceiroController,
+Logo depois você vai separar por comentarios oque cada parte do codigo corresponde a cada qual, como eu tenho 4 tipos de cruds vou separar em comentarios 
+no meu LancamentoFinanceiroController(as funções das 4 modais) depois disso vou separar em components todos os botões de modais(CategoryManager,ExpenseFilters e etc),
+depois que eu fizer isso vou separar tambem o meu backend em REQUESTS, ATRIBUIÇÃO DE DADO, ENVIO DE DADOS, VALIDAÇÕES, ACESSO AO BANCO, RESPOSTAS HTTP.
+Comece fazendo 1 por 1, comece com os tipos de despesas, depois categorias, depois Nova Despesa, Depois Novo Lancamento. Apague TODOS OS arquivos que você criou 
+No dia 24/04/2025 que não vão ter funcionalidade na primeira etapa(tipos de despesas.)
+
+Continue esse comentario amanhã destrinchando as etapas.
+
+Etapa 1 - Saber quais são os codigos do ExpenseTypes no controller, Criar controller proprio, criar component proprio...
+
