@@ -14,7 +14,7 @@ class ProductsController extends Controller
         $products = Product::with('supplier')->get();
         $suppliers = Supplier::all();
 
-        return Inertia::render('ProductsManager' , compact('products', 'suppliers'));
+        return Inertia::render('ProductsManager', compact('products', 'suppliers'));
     }
 
     public function store(Request $request)
@@ -47,7 +47,8 @@ class ProductsController extends Controller
         return $product;
     }
 
-    public function update(Request $request, Product $product){
+    public function update(Request $request, Product $product)
+    {
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:500',
@@ -62,17 +63,20 @@ class ProductsController extends Controller
         return redirect()->route('products.index')->with('success', 'Product updated successfully!');
     }
 
-    public function search(Request $request){
-        $search = $request->input('search');
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
 
-        $products = Product::with('supplier')
-        ->when($search, function($query, $search){
-            $query->where('name', 'like', '%' . $search . '%');
-        })->get();
+        if (!$query) {
+            return response()->json(['products' => []]);
+        }
 
-        $suppliers = Supplier::all();
+        $products = Product::where('name', 'like', '%' . $query . '%')
+            ->orWhere('id', 'like', '%' . $query . '%')
+            ->get(['id', 'name', 'price_for_sale']);
 
-        return Inertia::render('ProductsManager', compact('products', 'suppliers'));
+        return response()->json(['products' => $products]);
     }
+
 
 }

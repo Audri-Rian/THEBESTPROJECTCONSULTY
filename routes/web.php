@@ -6,6 +6,10 @@ use Inertia\Inertia;
 use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\LancamentoFinanceiroController;
 use App\Http\Controllers\SaleController;
+use App\Http\Controllers\ProductController;
+
+
+
 
 
 Route::get('/', function () {
@@ -50,8 +54,8 @@ Route::delete('/expense-types/{id}', [LancamentoFinanceiroController::class, 'de
 Route::middleware(['auth', 'verified', 'role.level:employee'])->group(function () {
     Route::get('/sales', [SaleController::class, 'index'])->name('sales.index');
     Route::post('/sales', [SaleController::class, 'store'])->name('sales.store');
+    Route::get('/sales/search-products', [SaleController::class, 'searchProducts'])->name('sales.search-products');
 });
 
-
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
+require __DIR__ . '/settings.php';
+require __DIR__ . '/auth.php';

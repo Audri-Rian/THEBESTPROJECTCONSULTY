@@ -10,7 +10,8 @@ use Inertia\Inertia;
 
 class SuppliersController extends Controller
 {
-    public function index() {
+    public function index()
+    {
         $suppliers = Supplier::with('address')->get()->map(function ($supplier) {
             return [
                 'id' => $supplier->id,
@@ -29,7 +30,8 @@ class SuppliersController extends Controller
         return Inertia::render('SuppliersManager', compact('suppliers'));
     }
 
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'cnpj' => 'nullable|string|max:255',
@@ -73,7 +75,8 @@ class SuppliersController extends Controller
         return redirect()->route('suppliers.index')->with('success', 'Supplier created successfully!');
     }
 
-    public function update(Request $request, Supplier $supplier) {
+    public function update(Request $request, Supplier $supplier)
+    {
         $validatedData = $request->validate([
             'name' => 'nullable|string|max:255',
             'cnpj' => 'nullable|string|max:255',
