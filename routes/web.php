@@ -8,7 +8,7 @@ use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\LancamentoFinanceiroController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\ProductController;
-use app\Http\Controllers\DashboardController;
+use App\Http\Controllers\DashboardController;
 
 
 

@@ -65,7 +65,7 @@ const submitSale = async () => {
 
     const response = await axios.post('/sales', payload);
 
-    alert('Sale submitted successfully! 🎉');
+    alert('Sale submitted successfully.');
     
     products.value = [{ product_id: '', quantity: 1 }];
     searchQueries.value = [''];
