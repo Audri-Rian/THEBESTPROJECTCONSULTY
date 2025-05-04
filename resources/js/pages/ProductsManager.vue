@@ -134,7 +134,7 @@ const submitSearch = () => {
                         />
                         <button
                             type="submit"
-                            class="text-blue rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium shadow transition-colors hover:bg-blue-700"
+                            class="text-blue rounded-xl ml-5 bg-blue-600 px-4 py-2 text-sm font-medium shadow transition-colors hover:bg-blue-700"
                         >
                             Buscar
                         </button>
