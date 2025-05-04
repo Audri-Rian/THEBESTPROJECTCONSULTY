@@ -30,11 +30,6 @@ const submitSale = () => {
         },
     });
 };
-
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Dashboard', href: '/dashboard' },
-    { title: 'Sales', href: '/sales' },
-];
 </script>
 
 <template>
