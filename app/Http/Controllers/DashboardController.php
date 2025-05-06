@@ -25,11 +25,17 @@ class DashboardController extends Controller
             $valores[$r->mes - 1] = (float) $r->total;
         }
 
+        // Calcula o custo total de tudo.
+        $totalCusto = DB::table('products_sales')
+        ->leftJoin('products', 'products.id', '=', 'products_sales.product_id')
+        ->selectRaw('SUM(COALESCE(products.price, 0) * products_sales.quantity) as custo_total')
+        ->value('custo_total');
+
         return response()->json([
             'labels' => $labels,
             'values' => $valores,
             'total' => array_sum($valores),
-            'margem' => 35,
+            'margem' => array_sum($valores) > 0 ? round(((array_sum($valores) - $totalCusto) / array_sum($valores)) * 100, 2) : 0,
             'quantidade' => DB::table('products_sales')->sum('quantity'),
             'produtos' => DB::table('products')->count()
         ]);
