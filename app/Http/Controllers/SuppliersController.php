@@ -126,4 +126,11 @@ class SuppliersController extends Controller
 
         return redirect()->route('suppliers.index')->with('success', 'Supplier updated successfully!');
     }
+
+    public function getAllSuppliers()
+    {
+        $suppliers = Supplier::all();
+
+        return response()->json($suppliers);
+    }
 }

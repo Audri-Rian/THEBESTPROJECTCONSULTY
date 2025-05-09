@@ -12,7 +12,7 @@ class Product extends Model
 
     protected $table = 'products';
 
-    protected $fillable = ['name', 'description', 'price', 'price_for_sale', 'quantity', 'supplier_id'];
+    protected $fillable = ['name', 'description', 'price', 'price_for_sale', 'quantity', 'status_id', 'supplier_id'];
 
     public function supplier(): BelongsTo
     {

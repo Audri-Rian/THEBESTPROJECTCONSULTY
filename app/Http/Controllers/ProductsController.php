@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -11,10 +10,35 @@ class ProductsController extends Controller
 {
     public function index()
     {
-        $products = Product::with('supplier')->get();
-        $suppliers = Supplier::all();
+        return Inertia::render('ProductsManager');
+    }
 
-        return Inertia::render('ProductsManager', compact('products', 'suppliers'));
+    public function getAllProducts()
+    {
+        $products = Product::with('supplier')->get();
+        return response()->json($products);
+    }
+
+    public function getProduct(Product $product)
+    {
+        return Product::with('supplier')->findOrFail($product->id);
+    }
+
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
+
+        if (!$query) {
+            $products = Product::with('supplier')->get();
+            return response()->json(['products' => $products]);
+        }
+
+        $products = Product::with('supplier')
+            ->where('name', 'like', '%' . $query . '%')
+            ->orWhere('id', 'like', '%' . $query . '%')
+            ->get();
+
+        return response()->json(['products' => $products]);
     }
 
     public function store(Request $request)
@@ -39,18 +63,18 @@ class ProductsController extends Controller
 
         $product->save();
 
-        return redirect()->route('products.index')->with('success', 'Product created successfully!');
-    }
+        $product = Product::with('supplier')->find($product->id);
 
-    public function getProduct(Product $product)
-    {
-        return $product;
+        return response()->json([
+            'message' => 'Product created successfully!',
+            'product' => $product
+        ]);
     }
 
     public function update(Request $request, Product $product)
     {
         $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'sometimes|string|max:255',
             'description' => 'nullable|string|max:500',
             'price' => 'nullable|numeric|min:0',
             'price_for_sale' => 'nullable|numeric|min:0',
@@ -58,25 +82,25 @@ class ProductsController extends Controller
             'supplier_id' => 'nullable|exists:suppliers,id',
         ]);
 
-        $product->update($validatedData);
+        $filteredData = array_filter($validatedData, function ($value) {
+            return !is_null($value);
+        });
 
-        return redirect()->route('products.index')->with('success', 'Product updated successfully!');
+        $product->fill($filteredData)->save();
+
+        $updatedProduct = Product::with('supplier')->find($product->id);
+        return response()->json([
+            'message' => 'Product updated successfully!',
+            'product' => $updatedProduct
+        ]);
     }
 
-    public function search(Request $request)
+    public function destroy(Product $product)
     {
-        $query = $request->input('query');
-
-        if (!$query) {
-            return response()->json(['products' => []]);
-        }
-
-        $products = Product::where('name', 'like', '%' . $query . '%')
-            ->orWhere('id', 'like', '%' . $query . '%')
-            ->get(['id', 'name', 'price_for_sale']);
-
-        return response()->json(['products' => $products]);
+        $product->update(['status_id' => 2]);
+        return response()->json([
+            'status' => true,
+            'message' => 'Product deleted successfully!'
+        ]);
     }
-
-
 }

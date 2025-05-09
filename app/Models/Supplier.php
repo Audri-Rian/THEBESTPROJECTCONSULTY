@@ -16,6 +16,7 @@ class Supplier extends Model
         'address_id',
         'phone',
         'cnpj',
+        'status_id',
         'email',
     ];
 

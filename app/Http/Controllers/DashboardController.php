@@ -7,6 +7,11 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
+    public function index()
+    {
+        return inertia('Dashboard');
+    }
+
     public function faturamento()
     {
         // Agrupar subtotais por mês a partir de products_sales
