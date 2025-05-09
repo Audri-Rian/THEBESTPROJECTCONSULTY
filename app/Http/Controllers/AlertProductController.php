@@ -8,7 +8,7 @@ use App\Services\MicroServices;
 
 class AlertProductController extends Controller
 {
-    public function checkStock(){
+    public function checkStock(int $productId ){
         $microservices = new MicroServices();
 
         $result = $microservices->checkLowStock(Product::find($productId));

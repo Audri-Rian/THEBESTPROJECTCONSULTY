@@ -12,6 +12,7 @@ return new class extends Migration {
             $table->string('name', 100);
             $table->text('description')->nullable();
             $table->decimal('price', 10, 2)->nullable();
+            $table->decimal('price_for_sale', 10, 2)->nullable();
             $table->integer('quantity')->nullable();
             $table->timestamps();
         });

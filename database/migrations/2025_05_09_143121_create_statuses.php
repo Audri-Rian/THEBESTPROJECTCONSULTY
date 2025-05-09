@@ -12,16 +12,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('roles', function (Blueprint $table) {
+        Schema::create('statuses', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->integer('level');
+            $table->string('name')->unique();
             $table->timestamps();
         });
 
-        DB::table('roles')->insert([
-            ['name' => 'admin','level' => 1, 'created_at' => now(),'updated_at' => now(),],
-            ['name' => 'employee', 'level'=> 2, 'created_at' => now(),'updated_at' => now(),],
+        DB::table('statuses')->insert([
+            ['name' => 'Ativo', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Deleted', 'created_at' => now(), 'updated_at' => now()],
         ]);
     }
 
@@ -30,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('roles');
+        Schema::dropIfExists('statuses');
     }
 };

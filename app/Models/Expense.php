@@ -8,6 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 class Expense extends Model
 {
     use HasFactory;
-    protected $table = 'expenses';
-    protected $fillable = ['name', 'report', 'amount', 'expense_type_id'];
+
+    protected $fillable = [
+        'name',
+        'description',
+        'amount',
+        'date',
+        'categories_id',
+        'expense_types_id'
+    ];
+    
+    public function expenseType()
+    {
+        return $this->belongsTo(ExpenseType::class);
+    }
 }

@@ -16,11 +16,17 @@ class Supplier extends Model
         'address_id',
         'phone',
         'cnpj',
+        'status_id',
         'email',
     ];
 
     public function address()
     {
         return $this->belongsTo(Address::class, 'address_id');
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(SupplierOrder::class, 'supplier_id');
     }
 }
