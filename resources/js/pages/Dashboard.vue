@@ -18,10 +18,13 @@ const faturamentoTotal = ref(0);
 const margemBruta = ref(0);
 const quantidadeVendida = ref(0);
 const produtosCadastrados = ref(0);
+const lucroTotal = ref(0);
+const roi = ref(0);
 
 // Referências aos gráficos
 const faturamentoChart = ref<HTMLCanvasElement | null>(null);
 const graficoPizza = ref<HTMLCanvasElement | null>(null);
+const lucroChart = ref<HTMLCanvasElement | null>(null);
 
 // Breadcrumbs
 const breadcrumbs = ref([
@@ -29,12 +32,9 @@ const breadcrumbs = ref([
   { text: 'Dashboard', href: '/dashboard', title: 'Visão Geral' },
 ]);
 
+// Funções de criação dos gráficos
 function criarGraficoLinha() {
-  if (
-    faturamentoChart.value &&
-    meses.value.length &&
-    valores.value.length
-  ) {
+  if (faturamentoChart.value && meses.value.length && valores.value.length) {
     new Chart(faturamentoChart.value, {
       type: 'line',
       data: {
@@ -83,11 +83,7 @@ function criarGraficoLinha() {
 }
 
 function criarGraficoPizza() {
-  if (
-    graficoPizza.value &&
-    produtos.value.length &&
-    vendas.value.length
-  ) {
+  if (graficoPizza.value && produtos.value.length && vendas.value.length) {
     new Chart(graficoPizza.value, {
       type: 'pie',
       data: {
@@ -143,37 +139,109 @@ function criarGraficoPizza() {
   }
 }
 
+function renderLucroChart(ctx: CanvasRenderingContext2D) {
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: meses.value,
+      datasets: [{
+        label: 'Lucro',
+        data: lucrosMensais.value,
+        borderColor: '#3b82f6',
+        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+        fill: true,
+        tension: 0.4,
+        pointStyle: 'circle',
+        pointRadius: 6,
+        pointHoverRadius: 8,
+        pointBackgroundColor: '#3b82f6',
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 2,
+      }],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+        },
+      },
+      interaction: {
+        mode: 'nearest',
+        axis: 'x',
+        intersect: false,
+      },
+      scales: {
+        x: {
+          grid: {
+            display: false,
+          },
+        },
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(200, 200, 200, 0.2)',
+          },
+        },
+      },
+    },
+  });
+}
+
+// Estado dos indicadores
+const mostrarInfo = ref({
+  margem: false,
+  roi: false,
+});
+
+const totalIncomes = ref(0);
+const lucrosMensais = ref<number[]>([]);
+
 onMounted(async () => {
   try {
-    // 1) Busca dados de faturamento (invoicing)
     const resF = await fetch('/dashboard/invoicing');
     if (!resF.ok) throw new Error(`Invoicing: HTTP ${resF.status}`);
     const dadosFaturamento = await resF.json();
 
-    // 2) Busca dados de vendas (sales)
     const resV = await fetch('/dashboard/sales');
     if (!resV.ok) throw new Error(`Sales: HTTP ${resV.status}`);
     const dadosVendas = await resV.json();
 
-    console.log('Invoicing:', dadosFaturamento);
-    console.log('Sales:', dadosVendas);
-
-    // Preenche indicadores principais
     meses.value               = dadosFaturamento.labels;
     valores.value             = dadosFaturamento.values;
     faturamentoTotal.value    = dadosFaturamento.total    || 0;
     margemBruta.value         = dadosFaturamento.margem   || 0;
+    lucroTotal.value          = dadosFaturamento.lucro_total || 0;
+    roi.value                 = dadosFaturamento.roi || 0;
     quantidadeVendida.value   = dadosFaturamento.quantidade || 0;
     produtosCadastrados.value = dadosFaturamento.produtos || 0;
 
-    // Preenche dados do gráfico de pizza
+    // Preenchendo a lista de lucros mensais
+    lucrosMensais.value = dadosFaturamento.lucros_mensais || Array(12).fill(0);
+
+    totalIncomes.value = dadosFaturamento.receitas_extras || 0;
+
     produtos.value = dadosVendas.labels;
     vendas.value   = dadosVendas.values;
 
-    // Aguarda o DOM e desenha os gráficos
+    // Criar gráficos
     await nextTick();
     criarGraficoLinha();
     criarGraficoPizza();
+
+    await nextTick();
+    setTimeout(() => {
+      if (lucroChart.value) {
+        const ctx = lucroChart.value.getContext('2d');
+        if (ctx) renderLucroChart(ctx);
+      }
+    }, 0);
+
   } catch (error) {
     console.error('Erro ao buscar dados do dashboard:', error);
   }
@@ -185,7 +253,6 @@ onMounted(async () => {
 
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="flex h-full flex-1 flex-col gap-6 rounded-xl p-6">
-      
       <!-- Indicadores -->
       <div class="grid auto-rows-min gap-6 md:grid-cols-4">
         <div class="flex flex-col justify-between rounded-xl border p-6 shadow-md bg-white dark:bg-gray-900">
@@ -196,30 +263,33 @@ onMounted(async () => {
         </div>
 
         <div class="flex flex-col justify-between rounded-xl border p-6 shadow-md bg-white dark:bg-gray-900">
-          <h3 class="text-lg font-bold">Margem Bruta</h3>
+          <h3 class="text-lg font-bold">
+            Margem Bruta
+            <button @click="mostrarInfo.margem = !mostrarInfo.margem" class="text-white-600 hover:text-white-800">?</button>
+          </h3>
+          <div v-if="mostrarInfo.margem" class="fixed inset-0 z-10" @click="mostrarInfo.margem = false"></div>
+          <div v-if="mostrarInfo.margem" class="absolute z-10 mt-2 p-3 w-64 bg-white text-sm text-gray-700 border rounded shadow-lg dark:bg-gray-800 dark:text-gray-200">
+            Margem Bruta: Mostra a porcentagem de lucro após deduzir o custo das mercadorias vendidas...
+          </div>
           <p class="text-3xl font-semibold mt-2">{{ margemBruta }}%</p>
         </div>
 
         <div class="flex flex-col justify-between rounded-xl border p-6 shadow-md bg-white dark:bg-gray-900">
           <h3 class="text-lg font-bold">Quantidade Vendida</h3>
-          <p class="text-3xl font-semibold mt-2">
-            {{ quantidadeVendida.toLocaleString('pt-BR') }}
-          </p>
+          <p class="text-3xl font-semibold mt-2">{{ quantidadeVendida.toLocaleString('pt-BR') }}</p>
         </div>
 
         <div class="flex flex-col justify-between rounded-xl border p-6 shadow-md bg-white dark:bg-gray-900">
           <h3 class="text-lg font-bold">Produtos Cadastrados</h3>
-          <p class="text-3xl font-semibold mt-2">
-            {{ produtosCadastrados.toLocaleString('pt-BR') }}
-          </p>
+          <p class="text-3xl font-semibold mt-2">{{ produtosCadastrados.toLocaleString('pt-BR') }}</p>
         </div>
       </div>
 
-      <!-- Gráficos -->
+      <!-- Gráficos de Faturamento e Produtos -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="rounded-xl border p-6 shadow-md bg-white dark:bg-gray-900">
           <h3 class="text-lg font-bold mb-4">Faturamento Mensal</h3>
-          <div class="h-[350px]">
+          <div class="relative h-[350px]">
             <canvas ref="faturamentoChart"></canvas>
           </div>
         </div>
@@ -228,6 +298,46 @@ onMounted(async () => {
           <h3 class="text-lg font-bold mb-4">Produtos Mais Vendidos</h3>
           <div class="h-[350px]">
             <canvas ref="graficoPizza"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-12 gap-6">
+        <div class="col-span-8 rounded-xl border p-4 shadow-md bg-white dark:bg-gray-900">
+          <h3 class="text-xl font-bold mb-4">Lucro Mensal</h3>
+          <div class="relative h-full">
+            <canvas ref="lucroChart" class="w-full h-full"></canvas>
+          </div>
+        </div>
+
+        <div class="col-span-4 flex flex-col gap-6">
+          <!-- Lucro Total -->
+          <div class="flex flex-col justify-between rounded-xl border p-6 shadow-md bg-white dark:bg-gray-900">
+            <h3 class="text-lg font-bold mb-2">Lucro Total</h3>
+            <p class="text-3xl font-semibold mt-2">
+              R$ {{ lucroTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) }}
+            </p>
+          </div>
+
+          <!-- ROI -->
+          <div class="relative flex flex-col justify-between rounded-xl border p-6 shadow-md bg-white dark:bg-gray-900">
+            <h3 class="text-lg font-bold mb-2 flex items-center gap-2">
+              ROI (Retorno sobre o Investimento)
+              <button @click="mostrarInfo.roi = !mostrarInfo.roi" class="text-white-600 hover:text-white-800">?</button>
+            </h3>
+            <div v-if="mostrarInfo.roi" class="fixed inset-0 z-10" @click="mostrarInfo.roi = false"></div>
+            <div v-if="mostrarInfo.roi" class="absolute z-20 mt-2 p-3 w-64 bg-white text-sm text-gray-700 border rounded shadow-lg dark:bg-gray-800 dark:text-gray-200">
+              ROI (Retorno sobre o Investimento): Mede quanto lucro você obteve em relação ao que investiu...
+            </div>
+            <p class="text-3xl font-semibold mt-2">{{ roi.toFixed(2) }}%</p>
+          </div>
+
+          <!-- Indicador novo -->
+          <div class="flex flex-col justify-between rounded-xl border p-6 shadow-md bg-white dark:bg-gray-900">
+            <h3 class="text-lg font-bold">Receitas Extras</h3>
+            <p class="text-3xl font-semibold mt-2">
+              R$ {{ totalIncomes.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) }}
+            </p>
           </div>
         </div>
       </div>
