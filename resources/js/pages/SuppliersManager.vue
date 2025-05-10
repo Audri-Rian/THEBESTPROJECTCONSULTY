@@ -9,7 +9,7 @@ import { Head, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-
+import axios from 'axios';
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
@@ -24,7 +24,6 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/suppliers'
     }
 ];
-
 const selectedSupplier = ref({
     id: '',
     name: '',
@@ -37,7 +36,6 @@ const selectedSupplier = ref({
     postal_code: '',
     district: '',
 });
-
 let form = useForm({
     name: '',
     cnpj: '',
@@ -49,10 +47,8 @@ let form = useForm({
     postal_code: '',
     district: '',
 });
-
 const modalRef = ref<InstanceType<typeof Modal> | null>(null);
 const editModalRef = ref<InstanceType<typeof Modal> | null>(null);
-
 const openAddSupplierModal = () => {
     form = useForm({
         name: '',
@@ -67,12 +63,10 @@ const openAddSupplierModal = () => {
     });
     modalRef.value?.openModal();
 };
-
 const openEditSupplierModal = (supplier: any) => {
     selectedSupplier.value = { ...supplier };
     editModalRef.value?.openModal();
 };
-
 const submitFormCreate = () => {
     form.post(route('suppliers.store'), {
         onSuccess: () => {
@@ -81,7 +75,15 @@ const submitFormCreate = () => {
         },
     });
 };
-
+const deleteSupplier = (id: number) => {
+    axios
+        .delete(route('suppliers.destroy', id))
+        .then(() => {
+            window.location.reload();
+        })
+        .catch((error) => {
+        });
+};
 const submitFormUpdate = () => {
     form.name = selectedSupplier.value.name;
     form.cnpj = selectedSupplier.value.cnpj;
@@ -92,20 +94,19 @@ const submitFormUpdate = () => {
     form.state = selectedSupplier.value.state;
     form.postal_code = selectedSupplier.value.postal_code;
     form.district = selectedSupplier.value.district;
-
     form.put(route('suppliers.update', selectedSupplier.value.id), {
         onSuccess: () => {
             editModalRef.value?.closeModal();
         },
     });
 };
-
 defineProps<{
     suppliers: Array<{
         id: number;
         name: string;
         cnpj: string;
         email: string;
+        status_id: number;
         phone: string;
         street: string;
         city: string;
@@ -115,13 +116,13 @@ defineProps<{
     }>;
 }>();
 </script>
-
 <template>
-    <Head title="Suppliers Manager" />
 
+    <Head title="Suppliers Manager" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-            <div class="relative min-h-[100vh] p-6 flex-1 rounded-xl border border-sidebar-border/70 dark:border-sidebar-border md:min-h-min">
+            <div
+                class="relative min-h-[100vh] p-6 flex-1 rounded-xl border border-sidebar-border/70 dark:border-sidebar-border md:min-h-min">
                 <div class="space-y-4">
                     <div class="flex flex-wrap items-center justify-between gap-4 border-b">
                         <div class="flex-1">
@@ -129,31 +130,32 @@ defineProps<{
                             <Title title="Here you can view the Suppliers registered in the database" :level="2" />
                         </div>
                         <div class="flex-shrink-0">
-                            <Button :icon="'Pin'" :variant="'default'" @click="openAddSupplierModal">Add Supplier</Button>
+                            <Button :icon="'Pin'" :variant="'default'" @click="openAddSupplierModal">Add
+                                Supplier</Button>
                         </div>
                     </div>
-
-                    <Table
-                        :headers="['ID', 'Name', 'Email', 'Phone', 'Action']"
-                        :data="
-                        suppliers.map((supplier) => ({
-                                ID: supplier.id,
-                                Name: supplier.name,
-                                Email: supplier.email,
-                                Phone: supplier.phone,
-                                supplier: supplier,
-                            }))
-                        "
-                    >
+                    <Table :headers="['ID', 'Name', 'Email', 'Phone', 'Action']" :data="suppliers
+                        .filter(supplier => supplier.status_id === 1)
+                        .map((supplier) => ({
+                            ID: supplier.id,
+                            Name: supplier.name,
+                            Email: supplier.email,
+                            Phone: supplier.phone,
+                            supplier: supplier,
+                        }))
+                        ">
                         <template #action="{ row }">
-                            <Button @click="openEditSupplierModal(row.supplier)" icon="Pencil">Edit</Button>
+                            <div class="flex gap-2">
+                                <Button @click="openEditSupplierModal(row.supplier)" icon="Pencil">Edit</Button>
+                                <Button @click="deleteSupplier(row.supplier.id)" icon="Trash"
+                                    variant="destructive">Delete</Button>
+                            </div>
                         </template>
                     </Table>
                 </div>
             </div>
         </div>
     </AppLayout>
-
     <Modal ref="modalRef">
         <template #title>
             <Title title="Add Supplier" :level="1" />
@@ -204,7 +206,6 @@ defineProps<{
             </div>
         </template>
     </Modal>
-
     <Modal ref="editModalRef">
         <template #title>
             <Title title="Edit Supplier" :level="1" />
@@ -254,7 +255,3 @@ defineProps<{
         </template>
     </Modal>
 </template>
-
-<style scoped>
-
-</style>
