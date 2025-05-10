@@ -226,11 +226,10 @@ onMounted(async () => {
                             <Button :icon="'Pin'" :variant="'default'" @click="openAddProductModal">Add Product</Button>
                         </div>
                     </div>
-                    <form @submit.prevent="submitSearch" class="mb-4">
-                        <input v-model="filter.search" type="text" placeholder="Search for products"
-                            class="text- w-full rounded-md border border-gray-300 p-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400 md:w-1/3" />
-                        <button type="submit"
-                            class="text-blue rounded-xl ml-5 bg-blue-600 px-4 py-2 text-sm font-medium shadow transition-colors hover:bg-blue-700">
+                    <form @submit.prevent="submitSearch" class="flex flex-col sm:flex-row items-center gap-3">
+                        <Input v-model="filter.search" type="text" placeholder="Search for products"
+                            class="w-full sm:flex-grow rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+                        <Button type="submit" variant="default" class="w-full sm:w-auto">
                             Search
                         </button>
                     </form>

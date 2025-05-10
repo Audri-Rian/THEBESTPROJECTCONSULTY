@@ -18,6 +18,7 @@ class SuppliersController extends Controller
                 'name' => $supplier->name,
                 'cnpj' => $supplier->cnpj,
                 'email' => $supplier->email,
+                'status_id' => $supplier->status_id,
                 'phone' => $supplier->phone,
                 'street' => $supplier->address->street ?? null,
                 'city' => $supplier->address->city ?? null,
@@ -132,5 +133,14 @@ class SuppliersController extends Controller
         $suppliers = Supplier::all();
 
         return response()->json($suppliers);
+    }
+
+    public function destroy(Supplier $supplier)
+    {
+        $supplier->update([
+            'status_id' => 2,
+        ]);
+
+        return response()->json(['success' => 'Supplier deleted successfully!']);
     }
 }
