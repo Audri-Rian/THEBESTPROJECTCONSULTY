@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import Button from '@/components/ui/button/Button.vue';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import Modal from '@/components/ui/modal/Modal.vue';
-import Table from '@/components/ui/table/Table.vue';
+
 import Title from '@/components/ui/title/Title.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
