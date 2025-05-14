@@ -20,6 +20,11 @@ const mainNavItems: NavItem[] = [
         icon: Box,
     },
     {
+        title: 'Products History',
+        href: '/products/history',
+        icon: BookOpen,
+    },
+    {
         title: 'Suppliers',
         href: '/suppliers',
         icon: Truck,

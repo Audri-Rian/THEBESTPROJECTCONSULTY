@@ -5,12 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Services\ProductsHistory;
 
 class ProductsController extends Controller
 {
     public function index()
     {
-        return Inertia::render('ProductsManager');
+        return Inertia::render('products/ProductsManager');
+    }
+
+    public function history()
+    {
+        return Inertia::render('products/ProductsHistory');
     }
 
     public function getAllProducts()
@@ -22,6 +28,13 @@ class ProductsController extends Controller
     public function getProduct(Product $product)
     {
         return Product::with('supplier')->findOrFail($product->id);
+    }
+
+    public function getProductsHistory()
+    {
+        $history = new ProductsHistory();
+        $productSales = $history->getProductsHistory();
+        return response()->json($productSales);
     }
 
     public function search(Request $request)
@@ -52,7 +65,7 @@ class ProductsController extends Controller
             'supplier_id' => 'nullable|exists:suppliers,id',
         ]);
 
-        if(Product::where('name', $request->name)->exists()) {
+        if (Product::where('name', $request->name)->exists()) {
             return response()->json([
                 'status' => false,
                 'message' => 'Product already exists!'
@@ -67,7 +80,7 @@ class ProductsController extends Controller
             'quantity' => $request->quantity,
             'supplier_id' => $request->supplier_id ?? null,
         ]);
-        
+
         $product = Product::with('supplier')->find($product->id);
 
         return response()->json([
