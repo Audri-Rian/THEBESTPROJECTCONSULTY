@@ -7,6 +7,7 @@ use App\Models\Sale;
 use App\Models\ProductSale;
 use App\Models\Product;
 use Inertia\Inertia;
+use App\Models\StockHistory;
 
 class SaleController extends Controller
 {
@@ -53,6 +54,11 @@ class SaleController extends Controller
 
             $productModel->decrement('quantity', $quantity);
 
+            StockHistory::create([
+                'product_id' => $productId,
+                'quantity' => -$quantity,
+            ]);
+
             $totalAmount += $subtotal;
         }
 
@@ -65,8 +71,6 @@ class SaleController extends Controller
             'sale' => $sale,
         ]);
     }
-
-
 
     public function searchProducts(Request $request)
     {

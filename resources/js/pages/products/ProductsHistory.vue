@@ -44,13 +44,15 @@ onMounted(async () => {
                     </div>
                 <div>
                     <Table
-                        :headers="['Nome', 'Quantidade', 'Preço', 'Saida']"
+                        :headers="['ID','Nome', 'Quantidade', 'Preço', 'Tipo', 'Data']"
                         :data="productsHistory
-                        .map((product) => ({
-                            Nome: product.product,
-                            Quantidade: product.quantity,
-                            Preço: `R$ ${product.total}`,
-                            Saida: product.date,
+                        .map((history) => ({
+                            ID: history.id,
+                            Nome: history.product,
+                            Quantidade: history.quantity,
+                            Preço: `R$ ${history.price}`,
+                            Tipo: history.type,
+                            Data: history.date,
                         }))"/>
                 </div>
             </div>

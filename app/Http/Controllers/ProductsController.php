@@ -6,6 +6,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Services\ProductsHistory;
+use App\Models\StockHistory;
 
 class ProductsController extends Controller
 {
@@ -83,6 +84,11 @@ class ProductsController extends Controller
 
         $product = Product::with('supplier')->find($product->id);
 
+        $stockHistory = StockHistory::create([
+            'product_id' => $product->id,
+            'quantity' => $product->quantity,
+        ]);
+
         return response()->json([
             'message' => 'Product created successfully!',
             'product' => $product
@@ -99,6 +105,14 @@ class ProductsController extends Controller
             'quantity' => 'nullable|integer|min:0',
             'supplier_id' => 'nullable|exists:suppliers,id',
         ]);
+
+        if (isset($validatedData['quantity']) && $validatedData['quantity'] != $product->quantity) {
+            $change = $validatedData['quantity'] - $product->quantity;
+            StockHistory::create([
+                'product_id' => $product->id,
+                'quantity' => $change,
+            ]);
+        }
 
         $filteredData = array_filter($validatedData, function ($value) {
             return !is_null($value);
