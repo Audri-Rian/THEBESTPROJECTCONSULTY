@@ -52,6 +52,13 @@ class ProductsController extends Controller
             'supplier_id' => 'nullable|exists:suppliers,id',
         ]);
 
+        if(Product::where('name', $request->name)->exists()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Product already exists!'
+            ]);
+        }
+
         $product = Product::create([
             'name' => $request->name,
             'description' => $request->description,
@@ -60,9 +67,7 @@ class ProductsController extends Controller
             'quantity' => $request->quantity,
             'supplier_id' => $request->supplier_id ?? null,
         ]);
-
-        $product->save();
-
+        
         $product = Product::with('supplier')->find($product->id);
 
         return response()->json([
