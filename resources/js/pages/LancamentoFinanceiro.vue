@@ -325,8 +325,7 @@ const deleteExpenseType = async (id: number) => {
                 <div class="flex justify-end space-x-5">
                     <!--Nova Receita-->
                     <Button @click="openRevenueModal" size="lg"
-                        class="w-48 bg-green-700 text-white rounded-md hover:bg-green-600">Novo
-                        Lançamento</Button>
+                        class="w-48 bg-green-700 text-white rounded-md hover:bg-green-600">Nova Receita</Button>
                     <!--Nova Despesa-->
                     <Button @click="openExpenseModal" size="lg"
                         class="w-48 bg-red-700 text-white rounded-md hover:bg-red-600">Nova Despesa</Button>
@@ -392,7 +391,7 @@ const deleteExpenseType = async (id: number) => {
                                     <div class="flex items-center">
                                         <span class="font-medium">{{ category.name }}</span>
                                         <span class="ml-2 text-xs text-gray-300 truncate">{{ category.description
-                                            }}</span>
+                                        }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -462,7 +461,7 @@ const deleteExpenseType = async (id: number) => {
                                     <div class="flex items-center">
                                         <span class="font-medium">{{ category.name }}</span>
                                         <span class="ml-2 text-xs text-gray-300 truncate">{{ category.description
-                                        }}</span>
+                                            }}</span>
                                     </div>
                                 </div>
                             </div>
