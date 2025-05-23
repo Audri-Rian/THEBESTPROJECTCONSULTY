@@ -20,6 +20,8 @@ const quantidadeVendida = ref(0);
 const produtosCadastrados = ref(0);
 const lucroTotal = ref(0);
 const roi = ref(0);
+const totalReceitas = ref(0);
+const totalDespesas = ref(0);
 
 // Referências aos gráficos
 const faturamentoChart = ref<HTMLCanvasElement | null>(null);
@@ -199,7 +201,7 @@ const mostrarInfo = ref({
   roi: false,
 });
 
-const totalIncomes = ref(0);
+const saldoFinanceiro = ref(0);
 const lucrosMensais = ref<number[]>([]);
 
 onMounted(async () => {
@@ -224,7 +226,9 @@ onMounted(async () => {
     // Preenchendo a lista de lucros mensais
     lucrosMensais.value = dadosFaturamento.lucros_mensais || Array(12).fill(0);
 
-    totalIncomes.value = dadosFaturamento.receitas_extras || 0;
+    saldoFinanceiro.value = dadosFaturamento.saldo_financeiro || 0;
+    totalReceitas.value = dadosFaturamento.total_receitas || 0;
+    totalDespesas.value = dadosFaturamento.total_despesas || 0;
 
     produtos.value = dadosVendas.labels;
     vendas.value   = dadosVendas.values;
@@ -332,11 +336,15 @@ onMounted(async () => {
             <p class="text-3xl font-semibold mt-2">{{ roi.toFixed(2) }}%</p>
           </div>
 
-          <!-- Indicador novo -->
+          <!-- Saldo Financeiro -->
           <div class="flex flex-col justify-between rounded-xl border p-6 shadow-md bg-white dark:bg-gray-900">
-            <h3 class="text-lg font-bold">Receitas Extras</h3>
-            <p class="text-3xl font-semibold mt-2">
-              R$ {{ totalIncomes.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) }}
+            <h3 class="text-lg font-bold mb-2">Saldo Financeiro</h3>
+            <p class="text-3xl font-semibold text-green-600 mt-2">
+              R$ {{ saldoFinanceiro.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) }}
+            </p>
+            <p class="text-sm text-gray-600 dark:text-gray-300 mt-2">
+              Receitas: R$ {{ totalReceitas.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) }}<br>
+              Despesas: R$ {{ totalDespesas.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) }}
             </p>
           </div>
         </div>
