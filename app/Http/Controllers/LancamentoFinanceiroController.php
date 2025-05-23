@@ -33,6 +33,43 @@ class LancamentoFinanceiroController extends Controller
         return back()->with('success', 'Receita adicionada com sucesso!');
     }
 
+    public function getIncomes(){
+        $incomes = Income::with('category')
+        ->select(
+            'id',
+            'name',
+            'description',
+            'amount',
+            'date',
+            'categories_id'
+        )->get()
+        ->map(function($income){
+            $income->type = 'income';
+            return $income;
+        });
+
+        return response()->json($incomes);
+    }
+        
+    public function getExpenses(){
+        $expenses = Expense::with(['category', 'expenseType'])
+        ->select(
+            'id',
+            'name',
+            'description',
+            'amount',
+            'date',
+            'categories_id',
+            'expense_types_id'
+        )->get()
+        ->map(function($expense) {
+            $expense->type = 'expense';
+            return $expense;
+        });
+
+        return response()->json($expenses);
+    }
+
     // Métodos para Categorias
     public function CategoryList()
     {
