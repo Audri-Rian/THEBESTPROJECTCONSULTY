@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import Button from '@/components/ui/button/Button.vue';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import Modal from '@/components/ui/modal/Modal.vue';
+import Table from '@/components/ui/table/Table.vue';
+import Title from '@/components/ui/title/Title.vue';
 import SearchBarFinancial from '@/components/FinancialComponents/SearchBarFinancial.vue';
 import ListFinancial from '@/components/FinancialComponents/ListFinancial.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -8,7 +12,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { formatDate } from '@vueuse/core';
 import axios from 'axios';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, reactive } from 'vue';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -16,7 +20,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/dashboard',
     },
     {
-        title: 'Lancamento Financeiro',
+        title: 'Lançamento Financeiro',
         href: '/LancamentoFinanceiro',
     },
 ];
@@ -38,6 +42,7 @@ interface ModalInstance {
     openModal: () => void;
     closeModal: () => void;
 }
+
 interface FinancialItem {
     id: number;
     tipo: 'Receita' | 'Despesa';
@@ -74,12 +79,12 @@ const submitRevenue = () => {
     }
     
     const url = isEditing.value
-        ? route('incomes.update', currentEditId.value as number) // Type assertion
+        ? route('incomes.update', currentEditId.value as number)
         : route('incomes.store');
 
     const method = isEditing.value ? 'put' : 'post';
 
-    revenueForm[method](url as string, { // Type assertion para string
+    revenueForm[method](url as string, {
         preserveScroll: true,
         onSuccess: () => {
             revenueModalRef.value?.closeModal();
@@ -91,6 +96,7 @@ const submitRevenue = () => {
         },
     });
 };
+
 const openRevenueModal = async () => {
     await fetchCategories();
     revenueModalRef.value?.openModal();
@@ -159,6 +165,7 @@ const categoryForm = useForm({
     name: '',
     description: '',
 });
+
 // Funções
 const fetchCategories = async () => {
     try {
@@ -168,6 +175,7 @@ const fetchCategories = async () => {
         console.error('Erro ao carregar categorias:', error);
     }
 };
+
 const submitCategory = () => {
     categoryForm.post(route('categories.store'), {
         preserveScroll: true,
@@ -202,6 +210,7 @@ const expenseTypeForm = useForm({
     name: '',
     description: '',
 });
+
 // Váriavel Reativa de Modal
 const expenseTypeModalRef = ref<ModalInstance | null>(null);
 
@@ -250,7 +259,7 @@ const listFinancialRef = ref();
 const isEditing = ref(false);
 const currentEditId = ref<number | null>(null);
 
-const handleEdit = (item: FinancialItem) => { // Tipo explícito
+const handleEdit = (item: FinancialItem) => {
     isEditing.value = true;
     currentEditId.value = item.id;
 
@@ -271,177 +280,278 @@ const handleEdit = (item: FinancialItem) => { // Tipo explícito
         expenseModalRef.value?.openModal();
     }
 };
-
 </script>
 
 <template>
-
-    <Head title="Lancamento Financeiro" />
+    <Head title="Lançamento Financeiro" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="p-4">
-            <div class="rounded-xl border p-5">
-                <!--Rescentes-->
-                <div class="mb-8 text-white shadow">
-                    <h2 class="mb-1 text-xl font-semibold">Lançamentos Recentes</h2>
-                    <p class="mb-3 text-sm text-gray-300">Essa página funciona, mas vou fazer uma refatoração de código
-                        completo nela.</p>
+        <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+            <div class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 p-6 dark:border-sidebar-border md:min-h-min">
+                <div class="space-y-4">
+                    <!-- Header Section -->
+                    <div class="flex flex-wrap items-center justify-between gap-4 border-b pb-4">
+                        <div class="flex-1">
+                            <Title title="Lançamentos Financeiros" :level="1" />
+                            <Title title="Gerencie suas receitas, despesas, categorias e tipos de despesa" :level="2" />
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <Button :icon="'Plus'" :variant="'default'" @click="openRevenueModal">
+                                Nova Receita
+                            </Button>
+                            <Button :icon="'Minus'" :variant="'destructive'" @click="openExpenseModal">
+                                Nova Despesa
+                            </Button>
+                            <Button :icon="'Tag'" :variant="'outline'" @click="openCategoryModal">
+                                Categorias
+                            </Button>
+                            <Button :icon="'FileText'" :variant="'outline'" @click="openExpenseTypeModal">
+                                Tipos de Despesa
+                            </Button>
+                        </div>
+                    </div>
 
-                    <!--Barra de Pesquisa-->
-                    <SearchBarFinancial />
-                    <!--Listagem Financeira-->
-                    <ListFinancial ref="listFinancialRef" @edit="handleEdit" />
-                </div>
+                    <!-- Search Section -->
+                    
 
-                <div class="flex justify-start space-x-5">
-                    <!--Nova Receita-->
-                    <Button @click="openRevenueModal" size="lg"
-                        class="w-48 rounded-md bg-green-700 text-white hover:bg-green-600">Novo Lançamento</Button>
-                    <!--Nova Despesa-->
-                    <Button @click="openExpenseModal" size="lg"
-                        class="w-48 rounded-md bg-red-700 text-white hover:bg-red-600">Nova Despesa</Button>
-                    <!--Nova Categoria-->
-                    <Button @click="openCategoryModal" size="lg"
-                        class="w-48 rounded-md bg-purple-700 text-white hover:bg-purple-600">
-                        Categorias</Button>
-                    <!--Nova Despesa-->
-                    <Button @click="openExpenseTypeModal" size="lg"
-                        class="w-48 rounded-md bg-blue-700 text-white hover:bg-blue-600">
-                        Tipos de Despesa
-                    </Button>
+                    <!-- Financial List Section -->
+                    <div>
+                        <ListFinancial ref="listFinancialRef" @edit="handleEdit" />
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!--Modal Nova Receita-->
+        <!-- Modal Nova Receita -->
         <Modal ref="revenueModalRef">
             <template #title>
-                <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Nova Receita</h3>
+                <Title title="Nova Receita" :level="1" />
             </template>
             <template #body>
-                <div class="mb-8 rounded-lg p-6 text-white shadow">
-                    <form @submit.prevent="submitRevenue" class="space-y-4">
-                        <div>
-                            <label for="name" class="block text-sm font-medium text-gray-300">Nome:</label>
-                            <input type="text" id="name" v-model="revenueForm.name"
-                                class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                placeholder="Nome da receita" required />
-                        </div>
+                <form @submit.prevent="submitRevenue" class="space-y-4">
+                    <div>
+                        <Label for="revenue-name">Nome</Label>
+                        <Input 
+                            id="revenue-name" 
+                            v-model="revenueForm.name"
+                            type="text" 
+                            placeholder="Nome da receita" 
+                            required 
+                        />
+                    </div>
 
-                        <div>
-                            <label for="description" class="block text-sm font-medium text-gray-300">Descrição:</label>
-                            <input type="text" id="description" v-model="revenueForm.description"
-                                class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                placeholder="Detalhes da receita" required />
-                        </div>
+                    <div>
+                        <Label for="revenue-description">Descrição</Label>
+                        <Input 
+                            id="revenue-description" 
+                            v-model="revenueForm.description"
+                            type="text" 
+                            placeholder="Detalhes da receita" 
+                            required 
+                        />
+                    </div>
 
-                        <div>
-                            <label for="amount" class="block text-sm font-medium text-gray-300">Valor:</label>
-                            <input type="number" id="amount" v-model="revenueForm.amount" step="0.01"
-                                class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                required />
-                        </div>
+                    <div>
+                        <Label for="revenue-amount">Valor</Label>
+                        <Input 
+                            id="revenue-amount" 
+                            v-model="revenueForm.amount" 
+                            type="number" 
+                            step="0.01"
+                            placeholder="0.00"
+                            required 
+                        />
+                    </div>
 
-                        <div>
-                            <label for="date" class="block text-sm font-medium text-gray-300">Data:</label>
-                            <input type="date" id="date" v-model="revenueForm.date"
-                                class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                required />
-                        </div>
+                    <div>
+                        <Label for="revenue-date">Data</Label>
+                        <Input 
+                            id="revenue-date" 
+                            v-model="revenueForm.date"
+                            type="date" 
+                            required 
+                        />
+                    </div>
 
-                        <!-- Seletor de Categorias -->
-                        <div>
-                            <label class="mb-2 block text-sm font-medium text-gray-300">Categoria:</label>
-                            <div class="grid max-h-40 grid-cols-2 gap-2 overflow-y-auto rounded-md bg-gray-700 p-2">
-                                <div v-for="category in categories" :key="category.id"
-                                    @click="toggleCategorySelection(category.id)"
-                                    class="cursor-pointer rounded p-2 transition-colors" :class="{
-                                        'bg-indigo-600': selectedCategoryId === category.id,
-                                        'bg-gray-600 hover:bg-gray-500': selectedCategoryId !== category.id,
-                                    }">
-                                    <div class="flex items-center">
-                                        <span class="font-medium">{{ category.name }}</span>
-                                        <span class="ml-2 truncate text-xs text-gray-300">{{ category.description
-                                        }}</span>
-                                    </div>
+                    <!-- Seletor de Categorias -->
+                    <div>
+                        <Label>Categoria</Label>
+                        <div class="grid max-h-40 grid-cols-2 gap-2 overflow-y-auto rounded-md border p-2 mt-2">
+                            <div v-for="category in categories" :key="category.id"
+                                @click="toggleCategorySelection(category.id)"
+                                class="cursor-pointer rounded p-2 transition-colors border" 
+                                :class="{
+                                    'bg-primary text-primary-foreground border-primary': selectedCategoryId === category.id,
+                                    'hover:bg-muted': selectedCategoryId !== category.id,
+                                }">
+                                <div class="flex flex-col">
+                                    <span class="font-medium text-sm">{{ category.name }}</span>
+                                    <span class="text-xs opacity-70 truncate">{{ category.description }}</span>
                                 </div>
                             </div>
-                            <p v-if="categories.length === 0" class="mt-2 text-sm text-red-400">
-                                Nenhuma categoria disponível. Crie uma categoria primeiro.
-                            </p>
                         </div>
+                        <p v-if="categories.length === 0" class="mt-2 text-sm text-destructive">
+                            Nenhuma categoria disponível. Crie uma categoria primeiro.
+                        </p>
+                    </div>
 
-                        <div class="flex gap-3 pt-4">
-                            <button type="submit"
-                                class="rounded-md bg-green-700 px-4 py-2 text-white hover:bg-green-600"
-                                :disabled="revenueForm.processing || !selectedCategoryId">
-                                Salvar
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                    <div class="flex justify-end space-x-2 border-t pt-4">
+                        <Button 
+                            type="submit"
+                            :disabled="revenueForm.processing || !selectedCategoryId"
+                            variant="default"
+                        >
+                            {{ isEditing ? 'Atualizar' : 'Salvar' }} Receita
+                        </Button>
+                    </div>
+                </form>
             </template>
         </Modal>
 
-        <!--Modal Nova Despesa-->
+        <!-- Modal Nova Despesa -->
         <Modal ref="expenseModalRef">
             <template #title>
-                <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Nova Despesa</h3>
+                <Title title="Nova Despesa" :level="1" />
             </template>
             <template #body>
-                <div class="mb-8 rounded-lg p-6 text-white shadow">
-                    <form @submit.prevent="submitExpense" class="space-y-4">
-                        <div>
-                            <label for="name" class="block text-sm font-medium text-gray-300">Nome:</label>
-                            <input type="text" id="name" v-model="expenseForm.name"
-                                class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                placeholder="Nome da despesa" required />
-                        </div>
+                <form @submit.prevent="submitExpense" class="space-y-4">
+                    <div>
+                        <Label for="expense-name">Nome</Label>
+                        <Input 
+                            id="expense-name" 
+                            v-model="expenseForm.name"
+                            type="text" 
+                            placeholder="Nome da despesa" 
+                            required 
+                        />
+                    </div>
 
-                        <div>
-                            <label for="description" class="block text-sm font-medium text-gray-300">Descrição:</label>
-                            <input type="text" id="description" v-model="expenseForm.description"
-                                class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                placeholder="Detalhes da despesa" required />
-                        </div>
+                    <div>
+                        <Label for="expense-description">Descrição</Label>
+                        <Input 
+                            id="expense-description" 
+                            v-model="expenseForm.description"
+                            type="text" 
+                            placeholder="Detalhes da despesa" 
+                            required 
+                        />
+                    </div>
 
-                        <div>
-                            <label for="amount" class="block text-sm font-medium text-gray-300">Valor:</label>
-                            <input type="number" id="amount" v-model="expenseForm.amount" step="0.01"
-                                class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                required />
-                        </div>
+                    <div>
+                        <Label for="expense-amount">Valor</Label>
+                        <Input 
+                            id="expense-amount" 
+                            v-model="expenseForm.amount" 
+                            type="number" 
+                            step="0.01"
+                            placeholder="0.00"
+                            required 
+                        />
+                    </div>
 
-                        <div>
-                            <label for="date" class="block text-sm font-medium text-gray-300">Data:</label>
-                            <input type="date" id="date" v-model="expenseForm.date"
-                                class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                required />
-                        </div>
+                    <div>
+                        <Label for="expense-date">Data</Label>
+                        <Input 
+                            id="expense-date" 
+                            v-model="expenseForm.date"
+                            type="date" 
+                            required 
+                        />
+                    </div>
 
-                        <!-- Seletor de Tipo de Despesa (agora obrigatório) -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-300">Tipo de Despesa:</label>
-                            <select v-model="expenseForm.expense_types_id"
-                                class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                required>
-                                <option value="" disabled>Selecione um tipo</option>
-                                <option v-for="type in expenseTypes" :key="type.id" :value="type.id">
-                                    {{ type.name }}
-                                </option>
-                            </select>
-                            <p v-if="expenseTypes.length === 0" class="mt-2 text-sm text-red-400">
-                                Você precisa criar pelo menos um tipo de despesa antes de continuar.
-                            </p>
-                        </div>
+                    <div>
+                        <Label for="expense-type">Tipo de Despesa</Label>
+                        <select 
+                            id="expense-type" 
+                            v-model="expenseForm.expense_types_id"
+                            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background"
+                            required
+                        >
+                            <option value="" disabled>Selecione um tipo</option>
+                            <option v-for="type in expenseTypes" :key="type.id" :value="type.id">
+                                {{ type.name }}
+                            </option>
+                        </select>
+                        <p v-if="expenseTypes.length === 0" class="mt-2 text-sm text-destructive">
+                            Você precisa criar pelo menos um tipo de despesa antes de continuar.
+                        </p>
+                    </div>
 
-                        <div class="flex gap-3 pt-4">
-                            <button type="submit" class="rounded-md bg-red-700 px-4 py-2 text-white hover:bg-red-600"
-                                :disabled="expenseForm.processing || expenseTypes.length === 0">
-                                Salvar Despesa
-                            </button>
+                    <div class="flex justify-end space-x-2 border-t pt-4">
+                        <Button 
+                            type="submit" 
+                            variant="destructive"
+                            :disabled="expenseForm.processing || expenseTypes.length === 0"
+                        >
+                            {{ isEditing ? 'Atualizar' : 'Salvar' }} Despesa
+                        </Button>
+                    </div>
+                </form>
+            </template>
+        </Modal>
+
+        <!-- Modal Categorias -->
+        <Modal ref="categoryModalRef">
+            <template #title>
+                <Title title="Gerenciar Categorias" :level="1" />
+            </template>
+            <template #body>
+                <div class="space-y-6">
+                    <!-- Formulário para nova categoria -->
+                    <div class="border-b pb-4">
+                        <form @submit.prevent="submitCategory" class="space-y-4">
+                            <div>
+                                <Label for="category-name">Nome</Label>
+                                <Input 
+                                    id="category-name" 
+                                    v-model="categoryForm.name"
+                                    type="text" 
+                                    placeholder="Nome da categoria" 
+                                    required 
+                                />
+                            </div>
+                            <div>
+                                <Label for="category-description">Descrição</Label>
+                                <Input 
+                                    id="category-description" 
+                                    v-model="categoryForm.description"
+                                    type="text" 
+                                    placeholder="Ex: Aluguel, Cliente X..." 
+                                    required 
+                                />
+                            </div>
+                            <div class="flex justify-end">
+                                <Button type="submit" variant="default">
+                                    Adicionar Categoria
+                                </Button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Lista de categorias existentes -->
+                    <div>
+                        <Title title="Categorias Existentes" :level="3" />
+                        <div class="mt-3 space-y-2 max-h-60 overflow-y-auto">
+                            <div v-for="category in categories" :key="category.id"
+                                class="flex items-center justify-between p-3 rounded-md border hover:bg-muted/50">
+                                <div class="flex-1">
+                                    <div class="font-medium">{{ category.name }}</div>
+                                    <div class="text-sm text-muted-foreground">{{ category.description }}</div>
+                                </div>
+                                <Button 
+                                    @click="deleteCategory(category.id)"
+                                    variant="destructive"
+                                    size="sm"
+                                    icon="Trash"
+                                >
+                                    Excluir
+                                </Button>
+                            </div>
+                            <div v-if="categories.length === 0" class="text-center py-4 text-muted-foreground">
+                                Nenhuma categoria cadastrada
+                            </div>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </template>
         </Modal>
@@ -449,99 +559,65 @@ const handleEdit = (item: FinancialItem) => { // Tipo explícito
         <!-- Modal Tipos de Despesa -->
         <Modal ref="expenseTypeModalRef">
             <template #title>
-                <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Gerenciar Tipos de Despesa</h3>
+                <Title title="Gerenciar Tipos de Despesa" :level="1" />
             </template>
             <template #body>
-                <form @submit.prevent="submitExpenseType" class="mb-6 space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300">Nome:</label>
-                        <input type="text" v-model="expenseTypeForm.name"
-                            class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                            placeholder="Nome do tipo" required />
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300">Descrição:</label>
-                        <input type="text" v-model="expenseTypeForm.description"
-                            class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                            placeholder="Descrição do tipo" required />
-                    </div>
-                    <div class="flex gap-3 pt-4">
-                        <button type="submit"
-                            class="rounded-md bg-blue-700 px-4 py-2 text-white hover:bg-blue-600">Salvar</button>
-                    </div>
-                </form>
-
-                <div class="mt-6">
-                    <h4 class="mb-3 text-lg font-medium text-gray-300">Tipos Existentes</h4>
-                    <ul class="divide-y divide-gray-600">
-                        <li v-for="type in expenseTypes" :key="type.id"
-                            class="group flex items-center justify-between py-3">
+                <div class="space-y-6">
+                    <!-- Formulário para novo tipo -->
+                    <div class="border-b pb-4">
+                        <form @submit.prevent="submitExpenseType" class="space-y-4">
                             <div>
-                                <span class="font-medium text-white">{{ type.name }}</span>
-                                <p class="text-sm text-gray-400">{{ type.description }}</p>
+                                <Label for="expense-type-name">Nome</Label>
+                                <Input 
+                                    id="expense-type-name" 
+                                    v-model="expenseTypeForm.name"
+                                    type="text" 
+                                    placeholder="Nome do tipo" 
+                                    required 
+                                />
                             </div>
-                            <button @click="deleteExpenseType(type.id)"
-                                class="text-red-500 opacity-0 transition-opacity hover:text-red-400 group-hover:opacity-100">
-                                <!-- Ícone de lixeira (igual ao da modal de categorias) -->
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                            </button>
-                        </li>
-                    </ul>
-                </div>
-            </template>
-        </Modal>
-
-        <!--Modal Nova Categoria-->
-        <Modal ref="categoryModalRef">
-            <template #title>
-                <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Gerenciar Categorias</h3>
-            </template>
-            <template #body>
-                <!-- Formulário para nova categoria -->
-                <form @submit.prevent="submitCategory" class="mb-6 space-y-4">
-                    <div>
-                        <label for="name" class="block text-sm font-medium text-gray-300">Nome:</label>
-                        <input type="text" id="name" v-model="categoryForm.name"
-                            class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                            placeholder="Nome da categoria" required />
-                    </div>
-                    <div>
-                        <label for="description" class="block text-sm font-medium text-gray-300">Descrição:</label>
-                        <input type="text" id="description" v-model="categoryForm.description"
-                            class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                            placeholder="Ex: Aluguel, Cliente X..." required />
-                    </div>
-
-                    <div class="flex gap-3 pt-4">
-                        <button type="submit"
-                            class="rounded-md bg-green-700 px-4 py-2 text-white hover:bg-green-600">Salvar</button>
-                    </div>
-                </form>
-
-                <!-- Lista de categorias existentes -->
-                <div class="mt-6">
-                    <h4 class="mb-3 text-lg font-medium text-gray-300">Categorias Existentes</h4>
-                    <ul class="divide-y divide-gray-600">
-                        <li v-for="category in categories" :key="category.id"
-                            class="group flex items-center justify-between py-3">
                             <div>
-                                <span class="font-medium text-white">{{ category.name }}</span>
-                                <p class="text-sm text-gray-400">{{ category.description }}</p>
+                                <Label for="expense-type-description">Descrição</Label>
+                                <Input 
+                                    id="expense-type-description" 
+                                    v-model="expenseTypeForm.description"
+                                    type="text" 
+                                    placeholder="Descrição do tipo" 
+                                    required 
+                                />
                             </div>
-                            <button @click="deleteCategory(category.id)"
-                                class="text-red-500 opacity-0 transition-opacity hover:text-red-400 group-hover:opacity-100">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                            </button>
-                        </li>
-                    </ul>
+                            <div class="flex justify-end">
+                                <Button type="submit" variant="default">
+                                    Adicionar Tipo
+                                </Button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Lista de tipos existentes -->
+                    <div>
+                        <Title title="Tipos Existentes" :level="3" />
+                        <div class="mt-3 space-y-2 max-h-60 overflow-y-auto">
+                            <div v-for="type in expenseTypes" :key="type.id"
+                                class="flex items-center justify-between p-3 rounded-md border hover:bg-muted/50">
+                                <div class="flex-1">
+                                    <div class="font-medium">{{ type.name }}</div>
+                                    <div class="text-sm text-muted-foreground">{{ type.description }}</div>
+                                </div>
+                                <Button 
+                                    @click="deleteExpenseType(type.id)"
+                                    variant="destructive"
+                                    size="sm"
+                                    icon="Trash"
+                                >
+                                    Excluir
+                                </Button>
+                            </div>
+                            <div v-if="expenseTypes.length === 0" class="text-center py-4 text-muted-foreground">
+                                Nenhum tipo de despesa cadastrado
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </template>
         </Modal>
