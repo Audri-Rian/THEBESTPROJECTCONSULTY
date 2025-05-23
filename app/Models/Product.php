@@ -25,4 +25,9 @@ class Product extends Model
     {
         return $this->hasMany(ProductSale::class);
     }
+    public function scopeSearchByName($query, $name)
+    {
+        return $query->where('name', 'LIKE', "%{$name}%")
+            ->collate('utf8mb4_unicode_ci');
+    }
 }
