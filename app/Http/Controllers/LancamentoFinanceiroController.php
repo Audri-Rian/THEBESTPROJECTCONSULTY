@@ -33,39 +33,41 @@ class LancamentoFinanceiroController extends Controller
         return back()->with('success', 'Receita adicionada com sucesso!');
     }
 
-    public function getIncomes(){
+    public function getIncomes()
+    {
         $incomes = Income::with('category')
-        ->select(
-            'id',
-            'name',
-            'description',
-            'amount',
-            'date',
-            'categories_id'
-        )->get()
-        ->map(function($income){
-            $income->type = 'income';
-            return $income;
-        });
+            ->select(
+                'id',
+                'name',
+                'description',
+                'amount',
+                'date',
+                'categories_id'
+            )->get()
+            ->map(function ($income) {
+                $income->type = 'income';
+                return $income;
+            });
 
         return response()->json($incomes);
     }
-        
-    public function getExpenses(){
+
+    public function getExpenses()
+    {
         $expenses = Expense::with(['category', 'expenseType'])
-        ->select(
-            'id',
-            'name',
-            'description',
-            'amount',
-            'date',
-            'categories_id',
-            'expense_types_id'
-        )->get()
-        ->map(function($expense) {
-            $expense->type = 'expense';
-            return $expense;
-        });
+            ->select(
+                'id',
+                'name',
+                'description',
+                'amount',
+                'date',
+                'categories_id',
+                'expense_types_id'
+            )->get()
+            ->map(function ($expense) {
+                $expense->type = 'expense';
+                return $expense;
+            });
 
         return response()->json($expenses);
     }
@@ -104,7 +106,6 @@ class LancamentoFinanceiroController extends Controller
             'description' => 'required|string|max:255',
             'amount' => 'required|numeric|min:0.01',
             'date' => 'required|date',
-            'categories_id' => 'required|exists:categories,id',
             'expense_types_id' => 'required|exists:expense_types,id'
         ]);
 
@@ -137,5 +138,62 @@ class LancamentoFinanceiroController extends Controller
         $type->delete();
 
         return response()->json(['message' => 'Tipo de despesa excluído com sucesso']);
+    }
+    public function updateIncome(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:100',
+            'description' => 'required|string|max:255',
+            'amount' => 'required|numeric|min:0.01',
+            'date' => 'required|date',
+            'categories_id' => 'required|exists:categories,id'
+        ]);
+
+        $income = Income::findOrFail($id);
+        $income->update($validated);
+
+        return back()->with('success', 'Receita atualizada com sucesso!');
+    }
+
+    public function updateExpense(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:100',
+            'description' => 'required|string|max:255',
+            'amount' => 'required|numeric|min:0.01',
+            'date' => 'required|date',
+            'expense_types_id' => 'required|exists:expense_types,id'
+        ]);
+
+        $expense = Expense::findOrFail($id);
+        $expense->update($validated);
+
+        return back()->with('success', 'Despesa atualizada com sucesso!');
+    }
+
+    public function destroyIncome($id)
+    {
+        try {
+            Income::findOrFail($id)->delete();
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao excluir: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function destroyExpense($id)
+    {
+        try {
+            Expense::findOrFail($id)->delete();
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao excluir: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
