@@ -55,6 +55,8 @@ class ProductsController extends Controller
         return response()->json(['products' => $products]);
     }
 
+
+
     public function store(Request $request)
     {
         $request->validate([

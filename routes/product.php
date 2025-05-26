@@ -3,7 +3,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductsController;
 
 Route::middleware(['auth', 'verified', 'role.level:employee'])->group(function () {
-    Route::get('products/search', [ProductsController::class, 'search'])->name('products.search');
+    Route::post('products/search', [ProductsController::class, 'search'])->name('products.search');
     Route::get('products/getall', [ProductsController::class, 'getAllProducts'])->name('products.getAll');
     Route::get('products', [ProductsController::class, 'index'])->name('products.index');
     Route::get('products/history', [ProductsController::class, 'history'])->name('products.history');

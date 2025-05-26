@@ -51,7 +51,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Products', href: '/products' },
 ];
 
-const showNotification = (message: string, type: string = 'success', duration: number = 3000) => {
+const showNotification = (message: string, type: 'success' | 'error' | 'warning' | 'info' = 'success', duration: number = 3000) => {
     notification.value?.showNotification(message, type, duration);
 };
 
@@ -142,8 +142,8 @@ const fetchSuppliers = async () => {
 
 const submitSearch = async () => {
     try {
-        const response = await axios.get('/products/search', {
-            params: { query: filter.search }
+        const response = await axios.post('/products/search', {
+            query: filter.search
         });
         products.value = response.data.products;
     } catch (error) {
@@ -152,6 +152,7 @@ const submitSearch = async () => {
         products.value = [];
     }
 };
+
 
 const submitFormCreate = async () => {
     try {
@@ -246,8 +247,9 @@ onMounted(async () => {
 });
 </script>
 <template>
+
     <Head title="Products Manager" />
-    
+
     <!-- Componente de Notificação -->
     <Notification ref="notification" />
 
@@ -413,22 +415,11 @@ onMounted(async () => {
         </Modal>
 
         <!-- Modais de confirmação usando o novo componente -->
-        <ConfirmationModal 
-            ref="confirmCreateModal"
-            @confirm="handleConfirmCreate"
-            @cancel="modalRef?.closeModal()"
-        />
+        <ConfirmationModal ref="confirmCreateModal" @confirm="handleConfirmCreate" @cancel="modalRef?.closeModal()" />
 
-        <ConfirmationModal 
-            ref="confirmUpdateModal"
-            @confirm="handleConfirmUpdate" 
-            @cancel="() => {}"
-        />
+        <ConfirmationModal ref="confirmUpdateModal" @confirm="handleConfirmUpdate" @cancel="() => { }" />
 
-        <ConfirmationModal 
-            ref="confirmDeleteModal"
-            @confirm="handleConfirmDelete"
-            @cancel="() => { productToDelete = null }"
-        />
+        <ConfirmationModal ref="confirmDeleteModal" @confirm="handleConfirmDelete"
+            @cancel="() => { productToDelete = null }" />
     </AppLayout>
 </template>
