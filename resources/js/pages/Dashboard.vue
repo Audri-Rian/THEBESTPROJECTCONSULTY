@@ -257,7 +257,8 @@ onMounted(async () => {
 
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="flex h-full flex-1 flex-col gap-6 rounded-xl p-6">
-      <!-- Indicadores -->
+
+      <!-- Indicadores financeiros -->
       <div class="grid auto-rows-min gap-6 md:grid-cols-4">
         <div class="flex flex-col justify-between rounded-xl border p-6 shadow-md bg-white dark:bg-gray-900">
           <h3 class="text-lg font-bold">Faturamento Total</h3>
@@ -267,6 +268,49 @@ onMounted(async () => {
         </div>
 
         <div class="flex flex-col justify-between rounded-xl border p-6 shadow-md bg-white dark:bg-gray-900">
+          <h3 class="text-lg font-bold mb-2">Lucro Total</h3>
+          <p class="text-3xl font-semibold mt-2">
+            R$ {{ lucroTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) }}
+          </p>
+        </div>
+
+        <div class="relative flex flex-col justify-between rounded-xl border p-6 shadow-md bg-white dark:bg-gray-900">
+          <h3 class="text-lg font-bold mb-2 flex items-center gap-2">
+            ROI (Retorno sobre o Investimento)
+            <button @click="mostrarInfo.roi = !mostrarInfo.roi" class="text-white-600 hover:text-white-800">?</button>
+          </h3>
+          <div v-if="mostrarInfo.roi" class="fixed inset-0 z-10" @click="mostrarInfo.roi = false"></div>
+          <div v-if="mostrarInfo.roi" class="absolute z-20 mt-2 p-3 w-64 bg-white text-sm text-gray-700 border rounded shadow-lg dark:bg-gray-800 dark:text-gray-200">
+            ROI (Retorno sobre o Investimento): Mede quanto lucro você obteve em relação ao que investiu...
+          </div>
+          <p class="text-3xl font-semibold mt-2">{{ roi.toFixed(2) }}%</p>
+        </div>
+
+        <div class="flex flex-col justify-between rounded-xl border p-6 shadow-md bg-white dark:bg-gray-900">
+          <h3 class="text-lg font-bold mb-2">Saldo Financeiro</h3>
+          <p class="text-3xl font-semibold text-green-600 mt-2">
+            R$ {{ saldoFinanceiro.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) }}
+          </p>
+          <p class="text-sm text-gray-600 dark:text-gray-300 mt-2">
+            Receitas: R$ {{ totalReceitas.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) }}<br>
+            Despesas: R$ {{ totalDespesas.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Indicadores operacionais -->
+      <div class="grid auto-rows-min gap-6 md:grid-cols-3">
+        <div class="flex flex-col justify-between rounded-xl border p-6 shadow-md bg-white dark:bg-gray-900">
+          <h3 class="text-lg font-bold">Quantidade Vendida</h3>
+          <p class="text-3xl font-semibold mt-2">{{ quantidadeVendida.toLocaleString('pt-BR') }}</p>
+        </div>
+
+        <div class="flex flex-col justify-between rounded-xl border p-6 shadow-md bg-white dark:bg-gray-900">
+          <h3 class="text-lg font-bold">Produtos Cadastrados</h3>
+          <p class="text-3xl font-semibold mt-2">{{ produtosCadastrados.toLocaleString('pt-BR') }}</p>
+        </div>
+
+        <div class="flex flex-col justify-between rounded-xl border p-6 shadow-md bg-white dark:bg-gray-900 relative">
           <h3 class="text-lg font-bold">
             Margem Bruta
             <button @click="mostrarInfo.margem = !mostrarInfo.margem" class="text-white-600 hover:text-white-800">?</button>
@@ -277,76 +321,32 @@ onMounted(async () => {
           </div>
           <p class="text-3xl font-semibold mt-2">{{ margemBruta }}%</p>
         </div>
-
-        <div class="flex flex-col justify-between rounded-xl border p-6 shadow-md bg-white dark:bg-gray-900">
-          <h3 class="text-lg font-bold">Quantidade Vendida</h3>
-          <p class="text-3xl font-semibold mt-2">{{ quantidadeVendida.toLocaleString('pt-BR') }}</p>
-        </div>
-
-        <div class="flex flex-col justify-between rounded-xl border p-6 shadow-md bg-white dark:bg-gray-900">
-          <h3 class="text-lg font-bold">Produtos Cadastrados</h3>
-          <p class="text-3xl font-semibold mt-2">{{ produtosCadastrados.toLocaleString('pt-BR') }}</p>
-        </div>
       </div>
 
-      <!-- Gráficos de Faturamento e Produtos -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="rounded-xl border p-6 shadow-md bg-white dark:bg-gray-900">
-          <h3 class="text-lg font-bold mb-4">Faturamento Mensal</h3>
-          <div class="relative h-[350px]">
-            <canvas ref="faturamentoChart"></canvas>
+      <!-- Gráficos reorganizados -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Coluna 1: Gráficos de linha empilhados -->
+        <div class="lg:col-span-2 flex flex-col gap-6">
+          <div class="rounded-xl border p-6 shadow-md bg-white dark:bg-gray-900">
+            <h3 class="text-lg font-bold mb-4">Faturamento Mensal</h3>
+            <div class="relative h-[260px]">
+              <canvas ref="faturamentoChart"></canvas>
+            </div>
           </div>
         </div>
 
-        <div class="rounded-xl border p-6 shadow-md bg-white dark:bg-gray-900">
+        <!-- Coluna 2: Gráfico de Pizza -->
+        <div class="rounded-xl border p-6 shadow-md bg-white dark:bg-gray-900 h-full">
           <h3 class="text-lg font-bold mb-4">Produtos Mais Vendidos</h3>
-          <div class="h-[350px]">
+          <div class="h-[260px]">
             <canvas ref="graficoPizza"></canvas>
           </div>
         </div>
       </div>
-
-      <div class="grid grid-cols-12 gap-6">
-        <div class="col-span-8 rounded-xl border p-4 shadow-md bg-white dark:bg-gray-900">
-          <h3 class="text-xl font-bold mb-4">Lucro Mensal</h3>
-          <div class="relative h-full">
-            <canvas ref="lucroChart" class="w-full h-full"></canvas>
-          </div>
-        </div>
-
-        <div class="col-span-4 flex flex-col gap-6">
-          <!-- Lucro Total -->
-          <div class="flex flex-col justify-between rounded-xl border p-6 shadow-md bg-white dark:bg-gray-900">
-            <h3 class="text-lg font-bold mb-2">Lucro Total</h3>
-            <p class="text-3xl font-semibold mt-2">
-              R$ {{ lucroTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) }}
-            </p>
-          </div>
-
-          <!-- ROI -->
-          <div class="relative flex flex-col justify-between rounded-xl border p-6 shadow-md bg-white dark:bg-gray-900">
-            <h3 class="text-lg font-bold mb-2 flex items-center gap-2">
-              ROI (Retorno sobre o Investimento)
-              <button @click="mostrarInfo.roi = !mostrarInfo.roi" class="text-white-600 hover:text-white-800">?</button>
-            </h3>
-            <div v-if="mostrarInfo.roi" class="fixed inset-0 z-10" @click="mostrarInfo.roi = false"></div>
-            <div v-if="mostrarInfo.roi" class="absolute z-20 mt-2 p-3 w-64 bg-white text-sm text-gray-700 border rounded shadow-lg dark:bg-gray-800 dark:text-gray-200">
-              ROI (Retorno sobre o Investimento): Mede quanto lucro você obteve em relação ao que investiu...
-            </div>
-            <p class="text-3xl font-semibold mt-2">{{ roi.toFixed(2) }}%</p>
-          </div>
-
-          <!-- Saldo Financeiro -->
-          <div class="flex flex-col justify-between rounded-xl border p-6 shadow-md bg-white dark:bg-gray-900">
-            <h3 class="text-lg font-bold mb-2">Saldo Financeiro</h3>
-            <p class="text-3xl font-semibold text-green-600 mt-2">
-              R$ {{ saldoFinanceiro.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) }}
-            </p>
-            <p class="text-sm text-gray-600 dark:text-gray-300 mt-2">
-              Receitas: R$ {{ totalReceitas.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) }}<br>
-              Despesas: R$ {{ totalDespesas.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) }}
-            </p>
-          </div>
+      <div class="rounded-xl border p-6 shadow-md bg-white dark:bg-gray-900">
+        <h3 class="text-lg font-bold mb-4">Lucro Mensal</h3>
+        <div class="relative h-[260px]">
+          <canvas ref="lucroChart"></canvas>
         </div>
       </div>
     </div>
@@ -356,7 +356,8 @@ onMounted(async () => {
 <style scoped>
 @media (max-width: 1024px) {
   .lg\:grid-cols-2,
-  .md\:grid-cols-4 {
+  .md\:grid-cols-4,
+  .md\:grid-cols-3 {
     grid-template-columns: 1fr;
   }
 }
