@@ -14,6 +14,8 @@ class StockHistory extends Model
     protected $fillable = [
         'product_id',
         'quantity',
+        'price',
+        'price_for_sale'
     ];
 
     public function product()
