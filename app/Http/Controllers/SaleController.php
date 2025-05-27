@@ -57,6 +57,8 @@ class SaleController extends Controller
             StockHistory::create([
                 'product_id' => $productId,
                 'quantity' => -$quantity,
+                'price' => $productModel->price,
+                'price_for_sale' => $productModel->price_for_sale
             ]);
 
             $totalAmount += $subtotal;

@@ -89,6 +89,8 @@ class ProductsController extends Controller
         $stockHistory = StockHistory::create([
             'product_id' => $product->id,
             'quantity' => $product->quantity,
+            'price' => $product->price,
+            'price_for_sale' => $product->price_for_sale
         ]);
 
         return response()->json([
@@ -113,6 +115,8 @@ class ProductsController extends Controller
             StockHistory::create([
                 'product_id' => $product->id,
                 'quantity' => $change,
+                'price' => $product->price,
+                'price_for_sale' => $product->price_for_sale
             ]);
         }
 

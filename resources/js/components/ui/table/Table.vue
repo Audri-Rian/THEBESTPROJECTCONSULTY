@@ -19,7 +19,7 @@ defineProps<{
             <tbody class="dark:text-white">
             <tr v-for="(row, rowIndex) in data" :key="rowIndex" class="border-t">
                 <td v-for="(header, colIndex) in headers" :key="colIndex" class="py-2 px-4">
-                    <template v-if="header === 'Action'">
+                    <template v-if="header === 'Ação'">
                         <slot name="action" :row="row"></slot>
                     </template>
                     <template v-else>
