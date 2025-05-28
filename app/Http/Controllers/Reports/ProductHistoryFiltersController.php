@@ -3,27 +3,46 @@
 namespace App\Http\Controllers\Reports;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
 use App\Models\StockHistory;
 use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ProductHistoryExport;
+use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 class ProductHistoryFiltersController extends Controller
 {
-    public function generate(Request $request)
+    public function search(Request $request)
     {
-        $validated = $request->validate([
-            'productName' => 'nullable|string|max:255',
-            'format' => 'required|in:xlsx,csv,pdf,json'
+        $query = $request->input('search');
+
+        if (!$query) {
+            $products = Product::with('supplier')->get();
+            return response()->json(['products' => $products]);
+        }
+
+        $products = Product::with('supplier')
+            ->where('name', 'like', '%' . $query . '%')
+            ->orWhere('id', 'like', '%' . $query . '%')
+            ->get();
+
+        return response()->json(['products' => $products]);
+    }
+
+    public function export(Request $request)
+    {
+        $request->validate([
+            'format' => 'required|in:xlsx,csv,pdf,json',
+            'productId' => 'nullable|exists:products,id'
         ]);
 
-        $query = StockHistory::with(['product'])
-            ->whereHas('product', function ($q) use ($validated) {
-                $q->when(!empty($validated['productName']), function ($q) use ($validated) {
-                    $q->where('name', 'like', '%' . $validated['productName'] . '%');
-                });
-            });
+        $query = StockHistory::with('product');
+
+        // Se um produto específico foi selecionado
+        if ($request->productId) {
+            $query->where('product_id', $request->productId);
+        }
 
         $data = $query->get()->map(function ($item) {
             return [
@@ -32,93 +51,82 @@ class ProductHistoryFiltersController extends Controller
                 'quantity' => $item->quantity,
                 'price' => (float) $item->price,
                 'type' => $item->product ? $item->product->type : 'N/A',
-                'date' => $item->created_at->toISOString()
+                'date' => Carbon::parse($item->created_at)->format('d/m/Y H:i:s')
             ];
         });
 
         $reportData = [
             'metadata' => [
                 'report_name' => 'Histórico de Produtos',
-                'generated_at' => now()->toISOString(),
-                'filters' => array_filter(['productName' => $validated['productName']]),
-                'total_records' => count($data)
+                'generated_at' => now()->format('d/m/Y H:i:s'),
+                'filters' => [
+                    'product_id' => $request->productId ?? 'Todos'
+                ],
+                'total_records' => $data->count()
             ],
             'data' => $data
         ];
 
-        switch ($validated['format']) {
+        switch ($request->format) {
             case 'xlsx':
                 return Excel::download(
                     new ProductHistoryExport($reportData),
-                    'products-history-report.xlsx'
+                    'historico-produtos.xlsx'
                 );
 
             case 'csv':
-                return $this->generateCsv($reportData);
+                return $this->exportCsv($reportData);
 
             case 'pdf':
-                return $this->generatePdf($reportData);
+                return $this->exportPdf($reportData);
 
             case 'json':
                 return response()->json($reportData)
-                    ->header('Content-Disposition', 'attachment; filename="products-history-report.json"');
-
-            default:
-                abort(400, 'Formato inválido');
+                    ->header('Content-Disposition', 'attachment; filename="historico-produtos.json"');
         }
     }
 
-    private function generateCsv($reportData)
+    private function exportCsv($reportData)
     {
-        $csv = "Relatório: Histórico de Produtos\n";
-        $csv .= "Gerado em: " . $reportData['metadata']['generated_at'] . "\n\n";
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="historico-produtos.csv"',
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0'
+        ];
 
-        $csv .= "Filtros:\n";
-        foreach (array_filter($reportData['metadata']['filters']) as $key => $value) {
-            $csv .= ucfirst($key) . ": " . $value . "\n";
-        }
-        $csv .= "\nTotal de Registros: " . $reportData['metadata']['total_records'] . "\n\n";
+        $callback = function() use ($reportData) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, ['Relatório: ' . $reportData['metadata']['report_name']]);
+            fputcsv($file, ['Gerado em: ' . $reportData['metadata']['generated_at']]);
+            fputcsv($file, ['Total de registros: ' . $reportData['metadata']['total_records']]);
+            fputcsv($file, []); // Linha em branco
+            
+            // Cabeçalhos
+            fputcsv($file, ['ID', 'Produto', 'Quantidade', 'Preço', 'Tipo', 'Data']);
+            
+            // Dados
+            foreach ($reportData['data'] as $row) {
+                fputcsv($file, [
+                    $row['id'],
+                    $row['product_name'],
+                    $row['quantity'],
+                    $row['price'],
+                    $row['type'],
+                    $row['date']
+                ]);
+            }
+            
+            fclose($file);
+        };
 
-        $csv .= "ID,Nome,Quantidade,Preço,Tipo,Data\n";
-
-        foreach ($reportData['data'] as $row) {
-            $csv .= implode(',', [
-                $row['id'],
-                '"' . str_replace('"', '""', $row['product_name']) . '"',
-                $row['quantity'],
-                $row['price'],
-                $row['type'],
-                $row['date']
-            ]) . "\n";
-        }
-
-        return response()->streamDownload(
-            function () use ($csv) {
-                echo $csv;
-            },
-            'products-history-report.csv',
-            [
-                'Content-Type' => 'text/csv',
-                'Content-Disposition' => 'attachment; filename="products-history-report.csv"'
-            ]
-        );
+        return response()->stream($callback, 200, $headers);
     }
 
-    private function generatePdf($reportData)
+    private function exportPdf($reportData)
     {
-        $pdf = Pdf::loadView('reports.product-history', $reportData);
-        return $pdf->download('products-history-report.pdf');
-    }
-
-    public function search(Request $request)
-    {
-        $request->validate(['name' => 'required|string|min:2']);
-
-        return response()->json(
-            Product::where('name', 'LIKE', "%{$request->name}%")
-                ->select('id', 'name', 'price', 'type')
-                ->limit(10)
-                ->get()
-        );
+        $pdf = PDF::loadView('reports.product-history', $reportData);
+        return $pdf->download('historico-produtos.pdf');
     }
 }

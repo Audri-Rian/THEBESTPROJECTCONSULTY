@@ -1,37 +1,64 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Relatório de Histórico de Produtos</title>
+    <meta charset="utf-8">
+    <title>Histórico de Produtos</title>
     <style>
-        body { font-family: sans-serif; }
-        .header { text-align: center; margin-bottom: 20px; }
-        .metadata { margin-bottom: 15px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f8f9fa; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .metadata {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f5f5f5;
+        }
+        tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>Relatório de Histórico de Produtos</h1>
-        <p>Gerado em: {{ \Carbon\Carbon::parse($metadata['generated_at'])->format('d/m/Y H:i') }}</p>
+        <h1>{{ $metadata['report_name'] }}</h1>
     </div>
 
     <div class="metadata">
-        <h3>Filtros Aplicados:</h3>
-        <ul>
-            @foreach(array_filter($metadata['filters']) as $key => $value)
-                <li><strong>{{ ucfirst($key) }}:</strong> {{ $value }}</li>
-            @endforeach
-        </ul>
-        <p>Total de Registros: {{ $metadata['total_records'] }}</p>
+        <p><strong>Data de Geração:</strong> {{ $metadata['generated_at'] }}</p>
+        <p><strong>Total de Registros:</strong> {{ $metadata['total_records'] }}</p>
+        <p><strong>Filtro de Produto:</strong> {{ $metadata['filters']['product_id'] }}</p>
     </div>
 
     <table>
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Nome</th>
+                <th>Produto</th>
                 <th>Quantidade</th>
                 <th>Preço</th>
                 <th>Tipo</th>
@@ -46,10 +73,14 @@
                 <td>{{ $item['quantity'] }}</td>
                 <td>R$ {{ number_format($item['price'], 2, ',', '.') }}</td>
                 <td>{{ $item['type'] }}</td>
-                <td>{{ \Carbon\Carbon::parse($item['date'])->format('d/m/Y H:i') }}</td>
+                <td>{{ $item['date'] }}</td>
             </tr>
             @endforeach
         </tbody>
     </table>
+
+    <div class="footer">
+        <p>Relatório gerado automaticamente pelo sistema</p>
+    </div>
 </body>
 </html>
