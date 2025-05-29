@@ -11,6 +11,7 @@ Route::middleware(['auth', 'verified', 'role.level:admin'])->group(function () {
     Route::delete('/categories/{id}', [LancamentoFinanceiroController::class, 'destroyCategory'])->name('categories.destroy');
     Route::get('/financial-records/incomes', [LancamentoFinanceiroController::class, 'getIncomes'])->name('financialRecord.incomes');
     Route::get('/financial-records/expenses', [LancamentoFinanceiroController::class, 'getExpenses'])->name('financialRecord.expenses');
+    Route::get('/search-entries', [LancamentoFinanceiroController::class, 'searchEntries'])->name('search.entries');
 
     Route::post('/incomes', [LancamentoFinanceiroController::class, 'storeRevenue'])->name('incomes.store');
     Route::put('/incomes/{id}', [LancamentoFinanceiroController::class, 'updateIncome'])->name('incomes.update');

@@ -196,4 +196,66 @@ class LancamentoFinanceiroController extends Controller
             ], 500);
         }
     }
+
+public function searchEntries(Request $request)
+{
+    try {
+        $search = $request->input('search', '');
+
+        $incomes = Income::with('category')
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('description', 'like', "%{$search}%");
+                });
+            })
+            ->get()
+            ->map(function ($income) {
+                return [
+                    'id' => $income->id,
+                    'nome' => $income->name,
+                    'descricao' => $income->description,
+                    'valor' => (float) ($income->amount ?? 0),
+                    'data' => $income->date,
+                    'categoria_id' => $income->categories_id,
+                    'categoria' => optional($income->category)->name,
+                    'tipo' => 'Receita',
+                ];
+            });
+
+        $expenses = Expense::with('expenseType')
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('description', 'like', "%{$search}%");
+                });
+            })
+            ->get()
+            ->map(function($expense){
+                return [    
+                    'id' => $expense->id,
+                    'nome' => $expense->name,
+                    'descricao' => $expense->description,
+                    'valor' => (float) ($expense->amount ?? 0) * -1,
+                    'data' => $expense->date,
+                    'tipoDespesa_id' => $expense->expense_types_id,
+                    'tipoDespesa' => optional($expense->expenseType)->name,
+                    'tipo' => 'Despesa',
+                ];
+            });
+        
+        $results = collect($incomes)
+            ->merge($expenses)
+            ->sortByDesc('data')
+            ->values();
+
+        return response()->json($results);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Erro interno',
+            'message' => $e->getMessage()
+        ], 500);
+    }
+}
 }
