@@ -15,17 +15,17 @@ const mainNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
     {
-        title: 'Products',
+        title: 'Produtos',
         href: '/products',
         icon: Box,
     },
     {
-        title: 'Products History',
+        title: 'Histórico de produtos',
         href: '/products/history',
         icon: BookOpen,
     },
     {
-        title: 'Suppliers',
+        title: 'Fornecedores',
         href: '/suppliers',
         icon: Truck,
     },
@@ -35,7 +35,7 @@ const mainNavItems: NavItem[] = [
         icon: ChartNoAxesCombined,
     },
     {
-        title: 'Sales',
+        title: 'Vendas',
         href: '/sales',
         icon: BadgeDollarSign
     },
