@@ -3,47 +3,67 @@ import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { type NavItem } from '@/types';
+import { type NavItem, type NavSection } from '@/types';
 import { Link } from '@inertiajs/vue3';
 import { BookOpen, Folder, LayoutGrid, Box, Truck, BadgeDollarSign, ChartNoAxesCombined, Save } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
-const mainNavItems: NavItem[] = [
+const mainNavSections: NavSection[] = [
     {
-        title: 'Dashboard',
-        href: '/dashboard',
-        icon: LayoutGrid,
+        title: 'Geral',
+        items: [
+            {
+                title: 'Dashboard',
+                href: '/dashboard',
+                icon: LayoutGrid,
+            },
+        ]
     },
     {
-        title: 'Produtos',
-        href: '/products',
-        icon: Box,
+        title: 'Controle de Estoque',
+        items: [
+            {
+                title: 'Produtos',
+                href: '/products',
+                icon: Box,
+            },
+            {
+                title: 'Histórico de produtos',
+                href: '/products/history',
+                icon: BookOpen,
+            },
+            {
+                title: 'Fornecedores',
+                href: '/suppliers',
+                icon: Truck,
+            },
+        ]
     },
     {
-        title: 'Histórico de produtos',
-        href: '/products/history',
-        icon: BookOpen,
+        title: 'Financeiro',
+        items: [
+            {
+                title: 'Lançamento Financeiro',
+                href: '/LancamentoFinanceiro',
+                icon: ChartNoAxesCombined,
+            },
+            {
+                title: 'Vendas',
+                href: '/sales',
+                icon: BadgeDollarSign
+            },
+        ]
     },
     {
-        title: 'Fornecedores',
-        href: '/suppliers',
-        icon: Truck,
-    },
-    {
-        title: 'Lancamento Financeiro',
-        href: '/LancamentoFinanceiro',
-        icon: ChartNoAxesCombined,
-    },
-    {
-        title: 'Vendas',
-        href: '/sales',
-        icon: BadgeDollarSign
-    },
-    {
-        title: 'Report',
-        href: '/report',
-        icon: Save
-    },
+        title: 'Relatórios',
+        items: [
+            {
+                title: 'Report',
+                href: '/report',
+                icon: Save
+            },
+        ]
+    }
 ];
 
 const footerNavItems: NavItem[] = [
@@ -61,7 +81,7 @@ const footerNavItems: NavItem[] = [
 </script>
 
 <template>
-    <Sidebar collapsible="icon" variant="inset">
+    <Sidebar collapsible="icon" variant="inset" class="border-r">
         <SidebarHeader>
             <SidebarMenu>
                 <SidebarMenuItem>
@@ -75,7 +95,14 @@ const footerNavItems: NavItem[] = [
         </SidebarHeader>
 
         <SidebarContent>
-            <NavMain :items="mainNavItems" />
+            <div class="space-y-4">
+                <div v-for="section in mainNavSections" :key="section.title" class="px-3">
+                    <h2 class="mb-2 px-4 text-lg font-semibold tracking-tight text-gray-500">
+                        {{ section.title }}
+                    </h2>
+                    <NavMain :items="section.items" />
+                </div>
+            </div>
         </SidebarContent>
 
         <SidebarFooter>
