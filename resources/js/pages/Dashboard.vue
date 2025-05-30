@@ -345,7 +345,7 @@ onMounted(async () => {
       </div>
       <div class="rounded-xl border p-6 shadow-md bg-white dark:bg-gray-900">
         <h3 class="text-lg font-bold mb-4">Lucro Mensal</h3>
-        <div class="relative h-[260px]">
+        <div class="relative h-full">
           <canvas ref="lucroChart"></canvas>
         </div>
       </div>
