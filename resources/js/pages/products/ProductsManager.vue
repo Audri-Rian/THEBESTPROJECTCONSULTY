@@ -283,8 +283,8 @@ onMounted(async () => {
                                 'Preço de Venda': product.price_for_sale ? `R$ ${product.price_for_sale}` : 'N/A',
                                 'Quantidade': product.quantity ? product.quantity : 'N/A',
                                 'Fornecedor': product.supplier ? product.supplier.name : 'N/A',
-                                'Ação': '',  // Adicionando a coluna de ação explicitamente
-                                product  // Mantendo o objeto product completo para o template action
+                                'Ação': '',  
+                                product  
                             }))">
                         <template #action="{ row }">
                             <div class="flex gap-2">

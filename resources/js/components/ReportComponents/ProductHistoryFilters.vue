@@ -126,8 +126,8 @@ const exportReport = async (format: string, exportAll: boolean = false) => {
 <template>
   <div class="space-y-8">
     <!-- Seção de Busca de Produto -->
-    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700 rounded-2xl p-1">
-      <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-8 border border-blue-100 dark:border-blue-900">
+    <div class=" rounded-2xl p-1">
+      <div class=" backdrop-blur-sm rounded-xl p-8 border border-blue-100 dark:border-blue-900">
         <div class="flex items-center mb-6">
           <div class="flex-1">
             <h3 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">
@@ -147,7 +147,7 @@ const exportReport = async (format: string, exportAll: boolean = false) => {
               @input="(e) => fetchProducts((e.target as HTMLInputElement).value)"
               @blur="clearSuggestions"
               placeholder="Digite o nome do produto"
-              class="w-full p-4 border-2 rounded-xl bg-white dark:bg-gray-700 border-blue-100 dark:border-blue-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent" 
+              class="w-full p-4 border-2 rounded-xl  border-blue-100 dark:border-blue-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent" 
             />
 
             <!-- Loading indicator -->
@@ -217,8 +217,8 @@ const exportReport = async (format: string, exportAll: boolean = false) => {
     </div>
 
     <!-- Seção de Exportação Completa -->
-    <div class="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-gray-800 dark:to-gray-700 rounded-2xl p-1">
-      <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-8 border border-purple-100 dark:border-purple-900">
+    <div class="rounded-2xl p-1">
+      <div class=" backdrop-blur-sm rounded-xl p-8 border border-purple-100 dark:border-purple-900">
         <div class="flex items-center justify-between mb-8">
           <div>
             <h3 class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">

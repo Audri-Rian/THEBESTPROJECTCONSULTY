@@ -37,7 +37,7 @@ const availableReports = [
   <Head title="Reports" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="min-h-screen bg-gray-100 dark:bg-gray-900 p-6">
+    <div class="min-h-screen p-6">
       <div class="max-w-7xl mx-auto mb-8">
         <!-- Header com Gradiente -->
         <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-800 dark:to-purple-800 p-12 mb-12 shadow-xl">
@@ -55,7 +55,7 @@ const availableReports = [
         <!-- Main Container -->
         <div class="space-y-8">
           <!-- Report Type Selection -->
-          <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div class=" rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
             <div class="p-8 border-b border-gray-200 dark:border-gray-700">
               <h2 class="text-2xl font-semibold mb-6 text-gray-900 dark:text-white flex items-center">
                 <span class="w-2 h-8 bg-gradient-to-b from-blue-500 to-purple-600 rounded-full mr-3"></span>
@@ -76,7 +76,7 @@ const availableReports = [
                       : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600'"
                   >
                     <div class="bg-gradient-to-br h-full w-full absolute opacity-10" :class="report.color"></div>
-                    <div class="bg-white dark:bg-gray-800 group-hover:bg-gray-50 dark:group-hover:bg-gray-700/50 transition-colors duration-300">
+                    <div class=" group-hover:bg-gray-50 dark:group-hover:bg-gray-700/50 transition-colors duration-300">
                       <div class="relative p-6">
                         <div class="text-center">
                           <div class="text-5xl mb-4 transform group-hover:scale-110 transition-transform">{{ report.icon }}</div>
@@ -101,7 +101,7 @@ const availableReports = [
             </div>
 
             <!-- Filters Section -->
-            <div v-if="selectedReport" class="p-8 bg-gray-50 dark:bg-gray-800/50">
+            <div v-if="selectedReport" class="p-8 ">
               <h2 class="text-2xl font-semibold mb-6 text-gray-900 dark:text-white flex items-center">
                 <span class="w-2 h-8 bg-gradient-to-b from-blue-500 to-purple-600 rounded-full mr-3"></span>
                 Configurar Filtros

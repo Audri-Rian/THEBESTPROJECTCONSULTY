@@ -128,8 +128,8 @@ const exportReport = async (format: string, exportAll: boolean = false) => {
 <template>
   <div class="space-y-8">
     <!-- Seção de Busca de Lançamento -->
-    <div class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-gray-800 dark:to-gray-700 rounded-2xl p-1">
-      <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-8 border border-green-100 dark:border-green-900">
+    <div class=" rounded-2xl p-1">
+      <div class="backdrop-blur-sm rounded-xl p-8 border border-green-100 dark:border-green-900">
         <div class="flex items-center mb-6">
           <div class="flex-1">
             <h3 class="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-400 dark:to-emerald-400 bg-clip-text text-transparent">
@@ -149,7 +149,7 @@ const exportReport = async (format: string, exportAll: boolean = false) => {
               @input="(e) => fetchEntries((e.target as HTMLInputElement).value)"
               @blur="clearSuggestions"
               placeholder="Digite o nome do lançamento"
-              class="w-full p-4 border-2 rounded-xl bg-white dark:bg-gray-700 border-green-100 dark:border-green-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:border-transparent" 
+              class="w-full p-4 border-2 rounded-xl  border-green-100 dark:border-green-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:border-transparent" 
             />
 
             <!-- Loading indicator -->
@@ -161,7 +161,7 @@ const exportReport = async (format: string, exportAll: boolean = false) => {
             </div>
 
             <!-- Dropdown de sugestões -->
-            <div v-show="entrySuggestions.length > 0" class="absolute left-0 right-0 mt-2 bg-white dark:bg-gray-700 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto border-2 border-green-100 dark:border-green-900">
+            <div v-show="entrySuggestions.length > 0" class="absolute left-0 right-0 mt-2  rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto border-2 border-green-100 dark:border-green-900">
               <div 
                 v-for="entry in entrySuggestions" 
                 :key="entry.id"
@@ -210,7 +210,7 @@ const exportReport = async (format: string, exportAll: boolean = false) => {
                   :key="format.value"
                   @click="exportReport(format.value, false)"
                   :disabled="isExporting"
-                  class="relative group overflow-hidden rounded-xl p-4 border-2 border-green-200 dark:border-green-800 hover:border-green-400 dark:hover:border-green-600 bg-white dark:bg-gray-800 transition-all duration-300"
+                  class="relative group overflow-hidden rounded-xl p-4 border-2 border-green-200 dark:border-green-800 hover:border-green-400 dark:hover:border-green-600  transition-all duration-300"
                 >
                   <div class="absolute inset-0 bg-gradient-to-r from-green-500/10 to-emerald-500/10 dark:from-green-500/20 dark:to-emerald-500/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <div class="relative flex flex-col items-center">
@@ -226,8 +226,8 @@ const exportReport = async (format: string, exportAll: boolean = false) => {
     </div>
 
     <!-- Seção de Exportação Completa -->
-    <div class="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-gray-800 dark:to-gray-700 rounded-2xl p-1">
-      <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-8 border border-amber-100 dark:border-amber-900">
+    <div class="rounded-2xl p-1">
+      <div class=" backdrop-blur-sm rounded-xl p-8 border border-amber-100 dark:border-amber-900">
         <div class="flex items-center justify-between mb-8">
           <div>
             <h3 class="text-2xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 dark:from-amber-400 dark:to-orange-400 bg-clip-text text-transparent">
@@ -246,7 +246,7 @@ const exportReport = async (format: string, exportAll: boolean = false) => {
             :key="format.value"
             @click="exportReport(format.value, true)"
             :disabled="isExporting"
-            class="relative group overflow-hidden rounded-xl p-6 border-2 border-amber-200 dark:border-amber-800 hover:border-amber-400 dark:hover:border-amber-600 bg-white dark:bg-gray-800 transition-all duration-300"
+            class="relative group overflow-hidden rounded-xl p-6 border-2 border-amber-200 dark:border-amber-800 hover:border-amber-400 dark:hover:border-amber-600  transition-all duration-300"
           >
             <div class="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-orange-500/10 dark:from-amber-500/20 dark:to-orange-500/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
             <div class="relative flex flex-col items-center">

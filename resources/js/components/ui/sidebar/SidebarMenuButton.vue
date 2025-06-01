@@ -33,7 +33,7 @@ const delegatedProps = computed(() => {
 
 <template>
     <SidebarMenuButtonChild v-if="!tooltip" v-bind="{ ...delegatedProps, ...$attrs }">
-        <slot />
+    <slot />
     </SidebarMenuButtonChild>
 
     <Tooltip v-else>

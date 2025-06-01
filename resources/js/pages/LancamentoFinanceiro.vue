@@ -261,15 +261,15 @@ const handleEdit = (item: FinancialItem) => {
         revenueForm.description = item.descricao;
         revenueForm.amount = Math.abs(item.valor);
         revenueForm.date = item.data;
-        revenueForm.categories_id = item.categoria_id;
-        selectedCategoryId.value = item.categoria_id;
+        revenueForm.categories_id = item.categoria_id ?? null;
+        selectedCategoryId.value = item.categoria_id ?? null;
         revenueModalRef.value?.openModal();
     } else {
         expenseForm.name = item.nome;
         expenseForm.description = item.descricao;
         expenseForm.amount = Math.abs(item.valor);
         expenseForm.date = item.data;
-        expenseForm.expense_types_id = item.tipoDespesa_id;
+        expenseForm.expense_types_id = item.tipoDespesa_id ?? null;
         expenseModalRef.value?.openModal();
     }
 };
