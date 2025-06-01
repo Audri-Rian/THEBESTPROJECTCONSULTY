@@ -147,7 +147,7 @@ const exportReport = async (format: string, exportAll: boolean = false) => {
               @input="(e) => fetchProducts((e.target as HTMLInputElement).value)"
               @blur="clearSuggestions"
               placeholder="Digite o nome do produto"
-              class="w-full p-4 border-2 rounded-xl  border-blue-100 dark:border-blue-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent" 
+              class="w-full p-4 border-2 rounded-xl bg-white dark:bg-gray-700 border-blue-100 dark:border-blue-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent" 
             />
 
             <!-- Loading indicator -->

@@ -149,7 +149,7 @@ const exportReport = async (format: string, exportAll: boolean = false) => {
               @input="(e) => fetchEntries((e.target as HTMLInputElement).value)"
               @blur="clearSuggestions"
               placeholder="Digite o nome do lançamento"
-              class="w-full p-4 border-2 rounded-xl  border-green-100 dark:border-green-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:border-transparent" 
+              class="w-full p-4 border-2 rounded-xl bg-white dark:bg-gray-700 border-green-100 dark:border-green-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:border-transparent" 
             />
 
             <!-- Loading indicator -->

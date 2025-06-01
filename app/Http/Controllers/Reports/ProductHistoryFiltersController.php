@@ -30,6 +30,10 @@ class ProductHistoryFiltersController extends Controller
         return response()->json(['products' => $products]);
     }
 
+    /**
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse|\Illuminate\Http\Response
+     */
     public function export(Request $request)
     {
         $request->validate([
@@ -37,9 +41,9 @@ class ProductHistoryFiltersController extends Controller
             'productId' => 'nullable|exists:products,id'
         ]);
 
+        /** @var \Illuminate\Database\Eloquent\Builder $query */
         $query = StockHistory::with('product');
 
-        // Se um produto específico foi selecionado
         if ($request->productId) {
             $query->where('product_id', $request->productId);
         }
@@ -67,66 +71,73 @@ class ProductHistoryFiltersController extends Controller
             'data' => $data
         ];
 
+        $product = $request->productId ? Product::find($request->productId) : null;
+        $filename = 'historico-produtos' . ($product ? '-' . $product->name : '');
+
         switch ($request->format) {
             case 'xlsx':
                 return Excel::download(
                     new ProductHistoryExport($reportData),
-                    'historico-produtos.xlsx'
-                );
+                    $filename . '.xlsx'
+                )->deleteFileAfterSend(true);
 
             case 'csv':
-                return $this->exportCsv($reportData);
+                $response = $this->exportCsv($reportData);
+                return $response->header('Content-Disposition', 'attachment; filename="' . $filename . '.csv"');
 
             case 'pdf':
-                return $this->exportPdf($reportData);
+                $pdf = PDF::loadView('reports.product-history', $reportData);
+                return $pdf->download($filename . '.pdf');
 
             case 'json':
-                return response()->json($reportData)
-                    ->header('Content-Disposition', 'attachment; filename="historico-produtos.json"');
+                return response()->json($reportData, 200, [
+                    'Content-Type' => 'application/json',
+                    'Content-Disposition' => 'attachment; filename="' . $filename . '.json"',
+                    'Access-Control-Expose-Headers' => 'Content-Disposition'
+                ]);
         }
     }
 
     private function exportCsv($reportData)
     {
         $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="historico-produtos.csv"',
-            'Pragma' => 'no-cache',
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Encoding' => 'UTF-8',
+            'Pragma' => 'public',
             'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
             'Expires' => '0'
         ];
 
         $callback = function() use ($reportData) {
-            $file = fopen('php://output', 'w');
+            $file = fopen('php://temp', 'w+');
+            // Adiciona BOM para UTF-8
+            fputs($file, "\xEF\xBB\xBF");
+            
             fputcsv($file, ['Relatório: ' . $reportData['metadata']['report_name']]);
             fputcsv($file, ['Gerado em: ' . $reportData['metadata']['generated_at']]);
             fputcsv($file, ['Total de registros: ' . $reportData['metadata']['total_records']]);
             fputcsv($file, []); // Linha em branco
             
-            // Cabeçalhos
             fputcsv($file, ['ID', 'Produto', 'Quantidade', 'Preço', 'Tipo', 'Data']);
             
-            // Dados
             foreach ($reportData['data'] as $row) {
                 fputcsv($file, [
                     $row['id'],
                     $row['product_name'],
                     $row['quantity'],
-                    $row['price'],
+                    'R$ ' . number_format($row['price'], 2, ',', '.'),
                     $row['type'],
                     $row['date']
                 ]);
             }
             
+            rewind($file);
+            $csv = stream_get_contents($file);
             fclose($file);
+            
+            return $csv;
         };
 
-        return response()->stream($callback, 200, $headers);
-    }
-
-    private function exportPdf($reportData)
-    {
-        $pdf = PDF::loadView('reports.product-history', $reportData);
-        return $pdf->download('historico-produtos.pdf');
+        return response($callback(), 200, $headers);
     }
 }

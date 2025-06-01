@@ -65,6 +65,10 @@ class FinancialEntryFiltersController extends Controller
         return response()->json($results);
     }
 
+    /**
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse|\Illuminate\Http\Response
+     */
     public function export(Request $request)
     {
         $request->validate([
@@ -72,10 +76,10 @@ class FinancialEntryFiltersController extends Controller
             'entryId' => 'nullable|integer'
         ]);
 
+        /** @var \Illuminate\Support\Collection $query */
         $query = collect();
 
         if ($request->entryId) {
-            // Busca específica por ID
             $income = Income::with('category')->find($request->entryId);
             $expense = Expense::with('expenseType')->find($request->entryId);
 
@@ -85,7 +89,6 @@ class FinancialEntryFiltersController extends Controller
                 $query->push($this->formatExpense($expense));
             }
         } else {
-            // Busca todos os lançamentos
             $incomes = Income::with('category')->get()->map(function ($income) {
                 return $this->formatIncome($income);
             });
@@ -112,22 +115,29 @@ class FinancialEntryFiltersController extends Controller
             'data' => $query->values()
         ];
 
+        $filename = 'lancamentos-financeiros' . ($request->entryId ? '-' . $query->first()['nome'] : '');
+
         switch ($request->format) {
             case 'xlsx':
                 return Excel::download(
                     new FinancialEntryExport($reportData),
-                    'lancamentos-financeiros.xlsx'
-                );
+                    $filename . '.xlsx'
+                )->deleteFileAfterSend(true);
 
             case 'csv':
-                return $this->exportCsv($reportData);
+                $response = $this->exportCsv($reportData);
+                return $response->header('Content-Disposition', 'attachment; filename="' . $filename . '.csv"');
 
             case 'pdf':
-                return $this->exportPdf($reportData);
+                $pdf = PDF::loadView('reports.financial-entries', $reportData);
+                return $pdf->download($filename . '.pdf');
 
             case 'json':
-                return response()->json($reportData)
-                    ->header('Content-Disposition', 'attachment; filename="lancamentos-financeiros.json"');
+                return response()->json($reportData, 200, [
+                    'Content-Type' => 'application/json',
+                    'Content-Disposition' => 'attachment; filename="' . $filename . '.json"',
+                    'Access-Control-Expose-Headers' => 'Content-Disposition'
+                ]);
         }
     }
 
@@ -160,15 +170,18 @@ class FinancialEntryFiltersController extends Controller
     private function exportCsv($reportData)
     {
         $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="lancamentos-financeiros.csv"',
-            'Pragma' => 'no-cache',
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Encoding' => 'UTF-8',
+            'Pragma' => 'public',
             'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
             'Expires' => '0'
         ];
 
         $callback = function() use ($reportData) {
-            $file = fopen('php://output', 'w');
+            $file = fopen('php://temp', 'w+');
+            // Adiciona BOM para UTF-8
+            fputs($file, "\xEF\xBB\xBF");
+            
             fputcsv($file, ['Relatório: ' . $reportData['metadata']['report_name']]);
             fputcsv($file, ['Gerado em: ' . $reportData['metadata']['generated_at']]);
             fputcsv($file, ['Total de registros: ' . $reportData['metadata']['total_records']]);
@@ -177,10 +190,8 @@ class FinancialEntryFiltersController extends Controller
             fputcsv($file, ['Saldo: R$ ' . number_format($reportData['metadata']['saldo'], 2, ',', '.')]);
             fputcsv($file, []); // Linha em branco
             
-            // Cabeçalhos
             fputcsv($file, ['ID', 'Nome', 'Descrição', 'Valor', 'Data', 'Categoria/Tipo', 'Tipo de Lançamento']);
             
-            // Dados
             foreach ($reportData['data'] as $row) {
                 fputcsv($file, [
                     $row['id'],
@@ -193,15 +204,13 @@ class FinancialEntryFiltersController extends Controller
                 ]);
             }
             
+            rewind($file);
+            $csv = stream_get_contents($file);
             fclose($file);
+            
+            return $csv;
         };
 
-        return response()->stream($callback, 200, $headers);
-    }
-
-    private function exportPdf($reportData)
-    {
-        $pdf = PDF::loadView('reports.financial-entries', $reportData);
-        return $pdf->download('lancamentos-financeiros.pdf');
+        return response($callback(), 200, $headers);
     }
 } 
