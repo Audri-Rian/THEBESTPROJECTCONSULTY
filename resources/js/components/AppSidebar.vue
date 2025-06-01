@@ -10,17 +10,19 @@ import AppLogo from './AppLogo.vue';
 
 const mainNavSections: NavSection[] = [
     {
-        title: 'Geral',
+        title: 'Geral', //Titulos de Identificação
         items: [
             {
                 title: 'Dashboard',
                 href: '/dashboard',
                 icon: LayoutGrid,
             },
-        ]
+            
+        ],
+        
     },
     {
-        title: 'Controle de Estoque',
+        title: 'Controle de Estoque', //Titulos de Identificação
         items: [
             {
                 title: 'Produtos',
@@ -40,7 +42,7 @@ const mainNavSections: NavSection[] = [
         ]
     },
     {
-        title: 'Financeiro',
+        title: 'Financeiro', //Titulos de Identificação
         items: [
             {
                 title: 'Lançamento Financeiro',
@@ -55,10 +57,10 @@ const mainNavSections: NavSection[] = [
         ]
     },
     {
-        title: 'Relatórios',
+        title: 'Relatórios', //Titulos de Identificação
         items: [
             {
-                title: 'Report',
+                title: 'Relatórios Gerais',
                 href: '/report',
                 icon: Save
             },
