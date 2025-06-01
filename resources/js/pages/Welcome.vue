@@ -12,8 +12,9 @@ import FooterSection from '../components/LandingPage/footerSection.vue'
 
 <template>
     <div>
-        <Head title="RIRI - Luxury Fashion" />
-        <div id="app">
+
+        <Head title="MÔNICA ARAGÃO" />
+        <div>
             <HeaderSection />
             <HeroSection />
             <ProductsSection />

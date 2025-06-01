@@ -20,22 +20,38 @@
           <div class="footer-column">
             <h4 class="column-title">Contato</h4>
             <div class="contact-info">
-              <p>Av. Paulista, 1000 - São Paulo</p>
-              <p>contato@monicaaragao.com</p>
-              <p>(11) 99999-9999</p>
+              <p>R. Alcídes Cursinho - Praça da Bandeira - Arcoverde</p>
+              <p>(87) 99991-0094</p>
             </div>
           </div>
 
-          <div class="footer-column">
+           <div class="footer-column">
             <h4 class="column-title">Conecte-se</h4>
             <div class="footer-social">
-              <a href="#" class="social-icon" aria-label="Instagram">
+              <!-- Instagram -->
+              <a href="https://www.instagram.com/monica.aragao.1422/" 
+                 class="social-icon instagram" 
+                 aria-label="Instagram"
+                 target="_blank"
+                 rel="noopener noreferrer">
                 <i class="fab fa-instagram"></i>
               </a>
-              <a href="#" class="social-icon" aria-label="Facebook">
-                <i class="fab fa-facebook"></i>
+              
+              <!-- Facebook -->
+              <a href="https://www.facebook.com/profile.php?id=100006700590318&ref=_ig_profile_ac" 
+                 class="social-icon facebook" 
+                 aria-label="Facebook"
+                 target="_blank"
+                 rel="noopener noreferrer">
+                <i class="fab fa-facebook-f"></i>
               </a>
-              <a href="#" class="social-icon" aria-label="WhatsApp">
+              
+              <!-- WhatsApp -->
+              <a href="https://wa.me/5587999910094" 
+                 class="social-icon whatsapp" 
+                 aria-label="WhatsApp"
+                 target="_blank"
+                 rel="noopener noreferrer">
                 <i class="fab fa-whatsapp"></i>
               </a>
             </div>
@@ -50,7 +66,7 @@
   </footer>
 </template>
 
-<script>
+<script lang="ts">
 export default {
   name: 'FooterSection',
   mounted() {

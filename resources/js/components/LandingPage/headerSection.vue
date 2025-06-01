@@ -1,7 +1,7 @@
 <template>
   <header class="header" :class="{ 'scrolled': isScrolled }">
     <nav class="nav">
-      <div class="logo">RIRI</div>
+      <div class="logo">MÔNICA ARAGÃO</div>
       <ul class="nav-links">
         <li v-for="(link, index) in links" :key="index">
           <a :href="link.url" class="nav-link hover-gold">{{ link.name }}</a>
@@ -21,11 +21,11 @@
         <template v-else>
           <Link :href="route('login')"
                 class="auth-btn auth-btn-login">
-            Log in
+            Entar
           </Link>
           <Link :href="route('register')"
                 class="auth-btn auth-btn-register">
-            Register
+            Registrar
           </Link>
         </template>
       </div>
@@ -33,7 +33,7 @@
   </header>
 </template>
 
-<script>
+<script lang="ts"> 
 import { Link } from '@inertiajs/vue3'
 
 export default {
@@ -45,7 +45,7 @@ export default {
     return {
       isScrolled: false,
       links: [
-        { name: 'Home', url: '#home' },
+        { name: 'Inicio', url: '#home' },
         { name: 'Produtos', url: '#produtos' },
         { name: 'Lookbook', url: '#lookbook' },
         { name: 'Sobre', url: '#sobre' },
