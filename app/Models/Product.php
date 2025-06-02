@@ -14,7 +14,18 @@ class Product extends Model
 
     protected $table = 'products';
 
-    protected $fillable = ['name', 'description', 'price', 'price_for_sale', 'quantity', 'status_id', 'supplier_id'];
+    protected $fillable = [
+        'name', 
+        'description', 
+        'price', 
+        'price_for_sale', 
+        'quantity', 
+        'status_id',
+        'supplier_id',
+        'image_path'
+    ];
+
+    protected $appends = ['image_url'];
 
     public function supplier(): BelongsTo
     {
@@ -25,6 +36,15 @@ class Product extends Model
     {
         return $this->hasMany(ProductSale::class);
     }
+
+    public function getImageUrlAttribute()
+    {
+        if ($this->image_path) {
+            return asset('storage/' . $this->image_path);
+        }
+        return asset('images/no-image.png');
+    }
+
     public function scopeSearchByName($query, $name)
     {
         return $query->where('name', 'LIKE', "%{$name}%")

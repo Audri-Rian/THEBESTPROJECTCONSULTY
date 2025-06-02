@@ -19,15 +19,13 @@ class ProductsHistory
                 $unitPrice = $isEntry ? $item->price : $item->price_for_sale;
                 $totalPrice = $unitPrice * abs($quantity);
 
-                $price = $isEntry ? -$totalPrice : $totalPrice;
-
                 return [
                     'id' => $item->id,
                     'product' => $item->product->name,
                     'quantity' => $quantity,
-                    'type' => $isEntry ? 'Entrada' : 'Saída',
-                    'price' => number_format($price, 2, ',', '.'),
-                    'date' => $item->created_at->format('d/m/Y H:i'),
+                    'type' => $isEntry ? 'entrada' : 'saída',
+                    'price' => $totalPrice,
+                    'date' => $item->created_at->format('Y-m-d H:i:s'),
                 ];
             });
     }

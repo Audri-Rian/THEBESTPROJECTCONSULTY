@@ -21,7 +21,7 @@
         <template v-else>
           <Link :href="route('login')"
                 class="auth-btn auth-btn-login">
-            Entar
+            Entrar
           </Link>
           <Link :href="route('register')"
                 class="auth-btn auth-btn-register">

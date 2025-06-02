@@ -12,4 +12,5 @@ Route::middleware(['auth', 'verified', 'role.level:employee'])->group(function (
     Route::put('products/{product}', [ProductsController::class, 'update'])->name('products.update');
     Route::delete('products/{product}', [ProductsController::class, 'destroy'])->name('products.destroy');
     Route::get('products/history/get', [ProductsController::class, 'getProductsHistory'])->name('products.history.get');
+    Route::post('products/{product}/upload-image', [ProductsController::class, 'uploadImage'])->name('products.upload-image');
 });
