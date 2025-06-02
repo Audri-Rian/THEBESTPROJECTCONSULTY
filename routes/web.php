@@ -1,6 +1,7 @@
 <?php
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\ProductsController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -13,3 +14,4 @@ require __DIR__ . '/supplier.php';
 require __DIR__ . '/sale.php';
 require __DIR__ . '/dashboard.php';
 require __DIR__ . '/product.php';
+require __DIR__ . '/report.php';

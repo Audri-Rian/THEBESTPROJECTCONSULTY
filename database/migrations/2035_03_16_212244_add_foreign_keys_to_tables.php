@@ -35,14 +35,9 @@ return new class extends Migration {
             }
         });
 
-        // Adiciona chaves estrangeiras na tabela 'expenses' (incluindo categories_id da primeira migração)
         Schema::table('expenses', function (Blueprint $table) {
             if (!Schema::hasColumn('expenses', 'expense_types_id')) {
                 $table->foreignId('expense_types_id')->constrained('expense_types')->onDelete('cascade');
-            }
-
-            if (!Schema::hasColumn('expenses', 'categories_id')) {
-                $table->foreignId('categories_id')->constrained('categories')->onDelete('cascade');
             }
         });
 
@@ -96,8 +91,6 @@ return new class extends Migration {
 
         Schema::table('expenses', function (Blueprint $table) {
             $table->dropForeign(['expense_types_id']);
-            $table->dropForeign(['categories_id']);
-            $table->dropColumn(['expense_types_id', 'categories_id']);
         });
 
         Schema::table('incomes', function (Blueprint $table) {

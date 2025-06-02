@@ -14,12 +14,11 @@ class Expense extends Model
         'description',
         'amount',
         'date',
-        'categories_id',
         'expense_types_id'
     ];
     
     public function expenseType()
     {
-        return $this->belongsTo(ExpenseType::class);
+        return $this->belongsTo(ExpenseType::class, 'expense_types_id');
     }
 }

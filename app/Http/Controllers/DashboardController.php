@@ -63,6 +63,15 @@ class DashboardController extends Controller
             $lucrosMensais[$mes->mes - 1] = (float) $mes->total_faturado - (float) $mes->custo_total;
         }
 
+        // Soma total de receitas
+        $totalReceitas = DB::table('incomes')->sum('amount');
+
+        // Soma total de despesas
+        $totalDespesas = DB::table('expenses')->sum('amount');
+
+        // Calcula o saldo
+        $saldoFinanceiro = $totalReceitas - $totalDespesas;
+
         // Retorna os dados como resposta JSON
         return response()->json([
             'labels' => $labels,
@@ -74,6 +83,9 @@ class DashboardController extends Controller
             'lucro_total' => $lucroTotal,
             'roi' => $roi,
             'lucros_mensais' => $lucrosMensais,
+            'saldo_financeiro' => $saldoFinanceiro,
+            'total_receitas' => $totalReceitas,
+            'total_despesas' => $totalDespesas,
         ]);
     }
 
