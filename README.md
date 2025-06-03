@@ -220,7 +220,7 @@ npm run build
 
 ## 📜 Documentações Presentes
 * [Análise de Requisitos](analisederequisitos.md)
-* [Tutorial]()
+* [Tutorial](tutorial.md)
 
 ## 🎥 Software
 
