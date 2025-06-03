@@ -219,8 +219,8 @@ npm run build
 
 
 ## 📜 Documentações Presentes
-- Análise de Requisitos
-- Documentação Principal
+* [Análise de Requisitos]()
+* [Tutorial]()
 
 ## 🎥 Software
 
