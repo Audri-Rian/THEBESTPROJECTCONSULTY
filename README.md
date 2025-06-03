@@ -10,7 +10,6 @@ Ao longo deste documento, iremos detalhar cada módulo, apresentar exemplos de c
 
 * [ ✨ Sobre o Projeto](#sobreoprojeto)
 * [ 🚤 Instalação](#instalacao)
-* [ 🔧 Funcionalidades](#funcionalidades)
 * [ 📜 Documentações Presentes](#documentation)
 * [ 🎥 Software](#-demonstração-em-vídeo)
 * [ ✍️ Contribuições](#contribuitions)
@@ -217,9 +216,6 @@ npm install
 php artisan migrate
 npm run build
 ``` 
-
-## 🔧 Funcionalidades
-
 
 
 ## 📜 Documentações Presentes
