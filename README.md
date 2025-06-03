@@ -223,6 +223,7 @@ npm run build
 * [Tutorial](tutorial.md)
 
 ## 🎥 Software
+[![Assista ao vídeo](https://img.youtube.com/vi/niidCwdookM/maxresdefault.jpg)](https://www.youtube.com/watch?v=niidCwdookM)
 
 ## ✍️ Contribuições
 | Responsável | Função                         | Principais Responsabilidades Técnicas                                                                                                                                                                                                                                                                                                                                                                                                                                       |
